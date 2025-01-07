@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista candidaților</title>
+</head>
+<body>
+<div class="table-container">
+    <h1>Lista Candidaților</h1>
+    <button class="add-button" th:onclick="|window.location.href='/candidates/add'|">Adaugă Candidat</button>
+    <table>
+        <thead>
+        <tr>
+            <th>Prenume</th>
+            <th>Nume</th>
+            <th>CNP</th>
+            <th>Acțiuni</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="candidate : ${candidates}">
+            <td th:text="${candidate.firstName}"></td>
+            <td th:text="${candidate.lastName}"></td>
+            <td th:text="${candidate.cnp}"></td>
+            <td class="actions">
+                <button th:onclick="|window.location.href='/candidates/view/' + ${candidate.id}|">Detalii</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
