@@ -26,8 +26,7 @@ public class CandidateService {
     }
 
     public void addCandidate(CandidateRequest candidateRequest) {
-        // Add candidate to database
-//        Candidate candidate = new Candidate(null, candidateRequest.getName(), candidateRequest.getCnp(), candidateRequest.getE);
+
         ExamConfiguration examConfiguration = examConfigurationRepository.findById(candidateRequest.getExamConfigId())
                 .orElseThrow(() -> new RuntimeException("Exam configuration not found"));
 
@@ -43,12 +42,25 @@ public class CandidateService {
     public List<CandidateResponse> getAllCandidates() {
         List<Candidate> candidates = candidateRepository.findAll();
         return candidates.stream()
-                .map(candidate -> new CandidateResponse(
+                .map(candidate ->  new CandidateResponse(
                         candidate.getId(),
                         candidate.getName(),
                         candidate.getCnp(),
-                        candidate.getJoinDate().toString()))
-
+                        candidate.getJoinDate().toString(),
+                        candidate.getExamConfiguration().getId()
+                ))
                 .collect(Collectors.toList());
+    }
+
+    public CandidateResponse getCandidateById(Long id) {
+        Candidate candidate = candidateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        return new CandidateResponse(
+                candidate.getId(),
+                candidate.getName(),
+                candidate.getCnp(),
+                candidate.getJoinDate().toString(),
+                candidate.getExamConfiguration().getId());
     }
 }

@@ -6,22 +6,57 @@
 </head>
 <body>
 <div class="form-container">
-    <h1>Adaugă Candidat</h1>
+    <h1>
+        <span th:if="${mode == 'view'}">Vizualizează Candidat</span>
+        <span th:if="${mode == 'add'}">Adaugă Candidat</span>
+    </h1>
     <form action="/candidates/add" method="post">
+        <input type="hidden" name="id" th:value="${candidate != null ? candidate.id : ''}">
         <label for="name">Nume</label>
-        <input type="text" id="name" name="name" required>
+        <input type="text" id="name" name="name"
+               th:value="${candidate != null ? candidate.name : ''}" required>
+
         <label for="cnp">CNP:</label>
-        <input type="text" id="cnp" name="cnp" required>
+        <input type="text" id="cnp" name="cnp"
+               th:value="${candidate != null ? candidate.cnp : ''}" required>
+
         <!-- select with exam configurations -->
-        <label for="examConfig">Configurație examen:</label>
+        <label for="examConfig">Configurație examen curenta:</label>
         <select id="examConfig" name="examConfigId">
             <option th:each="examConfig : ${examConfigs}"
                     th:value="${examConfig.id}"
-                    th:text="${examConfig.drivingLicenseType}"></option>
-            </select>
-
+                    th:text="${examConfig.drivingLicenseType}"
+                    th:selected="${candidate != null && candidate.examConfigurationId == examConfig.id}"></option>
         </select>
-        <button type="submit">Adaugă Candidat</button>
+        <button type="submit"><span th:if="${mode == 'view'}">Actualizeaza Candidat</span>
+            <span th:if="${mode == 'add'}">Adaugă Candidat</span></button>
     </form>
+    <div th:if="${candidate != null}">
+
+    <form action="/exam/generate" method="post" >
+        <input type="hidden" name="candidateId" th:value="${candidate != null ? candidate.id : ''}">
+        <button>Generează încercare examen</button>
+    </form>
+
+    <h2>
+        Examinări efectuate:
+    </h2>
+
+    <table>
+        <th>
+            <th>Id</th>
+            <th>Data început</th>
+            <th>Data sfarsit</th>
+            <th>Categorie examen</th>
+            <th>Status</th>
+        </th>
+        <!--            <tr th:each="attempt, iterStat : ${candidate.attempts}">-->
+        <!--                <td th:text="${iterStat.count}"></td>-->
+        <!--                <td th:text="${#dates.format(attempt.date, 'dd-MM-yyyy')}"></td>-->
+        <!--                <td th:text="${attempt.result}"></td>-->
+        <!--            </tr>-->
+    </table>
+    </div>
+</div>
 </body>
 </html>

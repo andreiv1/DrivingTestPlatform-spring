@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -13,4 +15,7 @@ public class QuestionResponse {
     private Long id;
     private String text;
     private String licenseType;
+    private Long examConfigId;
+    private List<String> answers;
+    private List<Boolean> correctAnswers;
 }

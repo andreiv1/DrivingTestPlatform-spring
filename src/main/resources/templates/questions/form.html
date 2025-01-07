@@ -17,7 +17,11 @@
             <label for="category">Configuratie examen</label>
             <select id="category" name="examConfigId" required>
                 <option value="">Categorie permis</option>
-                <option th:each="examConfig : ${examConfigs}" th:value="${examConfig.id}" th:text="${examConfig.drivingLicenseType}"></option>
+                //show selected if examConfig.id equals examConfigId
+
+                <option th:each="examConfig : ${examConfigs}"
+                        th:value="${examConfig.id}" th:text="${examConfig.drivingLicenseType}"
+                        th:selected="${question.examConfigId == examConfig.id}"></option>
             </select>
         </div>
 

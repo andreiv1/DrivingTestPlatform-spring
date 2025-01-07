@@ -39,7 +39,8 @@ public class QuestionService {
     public List<QuestionResponse> getQuestions() {
         return questionRepository.findAll()
                 .stream()
-                .map(q -> new QuestionResponse(q.getId(),q.getQuestionText(),q.getDrivingLicenseType().toString())).collect(Collectors.toList());
+                .map(q -> new QuestionResponse(q.getId(),q.getQuestionText(),q.getDrivingLicenseType().toString(),
+                        null, null, null)).collect(Collectors.toList());
     }
     public void addQuestion(QuestionRequest questionRequest) {
         ExamConfiguration examConfiguration = examConfigurationRepository
@@ -68,5 +69,16 @@ public class QuestionService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public QuestionResponse getQuestion(Long id) {
+        Question question = questionRepository.findById(id).orElseThrow(() -> new RuntimeException("Question not found"));
+        ExamConfiguration examConfiguration = examConfigurationRepository.findByLicenseType(question.getDrivingLicenseType());
+
+        return new QuestionResponse(question.getId(), question.getQuestionText(), question.getDrivingLicenseType().toString(),
+                examConfiguration.getId(),
+                question.getAnswers().stream().map(Answer::getAnswerText).collect(Collectors.toList()),
+                question.getAnswers().stream().map(Answer::isCorrect).collect(Collectors.toList())
+        );
     }
 }

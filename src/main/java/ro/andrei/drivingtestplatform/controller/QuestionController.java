@@ -3,10 +3,7 @@ package ro.andrei.drivingtestplatform.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ro.andrei.drivingtestplatform.request.QuestionRequest;
 import ro.andrei.drivingtestplatform.service.ExamService;
@@ -64,6 +61,14 @@ public class QuestionController {
             @RequestParam("file") MultipartFile file) throws IOException {
         questionService.importQuestionsFromCsv(file.getInputStream(), examConfigId);
         return "redirect:/questions";
+    }
+
+    @GetMapping("/questions/view/{id}")
+    public String viewQuestion(Model model, @PathVariable String id){
+        model.addAttribute("examConfigs", examService.getExamConfigurations());
+        model.addAttribute("question", questionService.getQuestion(Long.parseLong(id)));
+        model.addAttribute("mode", "view");
+        return "questions/form";
     }
 
 }

@@ -22,7 +22,7 @@ public class CsvQuestionFileProcessor implements QuestionFileProcessor {
             }
             String[] values = line.split(",");
             if (values.length != 7) {
-                // Skip lines that don't have exactly 7 elements
+                //TODO file format is not valid
                 continue;
             }
             System.out.println(values[0]);

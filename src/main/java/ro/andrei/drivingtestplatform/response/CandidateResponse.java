@@ -14,4 +14,5 @@ public class CandidateResponse {
     private String name;
     private String cnp;
     private String joinDate;
+    private Long examConfigurationId;
 }

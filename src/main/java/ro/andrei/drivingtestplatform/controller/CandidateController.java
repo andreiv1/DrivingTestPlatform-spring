@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import ro.andrei.drivingtestplatform.request.CandidateRequest;
 import ro.andrei.drivingtestplatform.service.CandidateService;
@@ -35,14 +36,17 @@ public class CandidateController {
     }
 
     @PostMapping("/candidates/add")
-    public String addCandidatePost(Model model, CandidateRequest candidateRequest){
+    public String addCandidatePost(CandidateRequest candidateRequest){
         candidateService.addCandidate(candidateRequest);
         return "redirect:/candidates";
     }
 
     @GetMapping("/candidates/view/{id}")
-    public String viewCandidate(){
-        return "candidates/view";
+    public String viewCandidate(Model model, @PathVariable String id){
+        model.addAttribute("mode", "view");
+        model.addAttribute("examConfigs", examService.getExamConfigurations());
+        model.addAttribute("candidate", candidateService.getCandidateById(Long.parseLong(id)));
+        return "candidates/form";
     }
 
 

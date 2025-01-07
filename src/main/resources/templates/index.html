@@ -4,7 +4,22 @@
     <meta charset="UTF-8">
     <title>Examen Auto</title>
 </head>
-<body>
+<header>
+    <h1>Examen Auto</h1>
+    <div class="menu">
+        <a href="/candidates">Candidați</a>
+        <a href="/questions">Întrebări</a>
+    </div>
+</header>
 
-</body>
+<div class="container">
+    <h2>Introduceti CNP-ul pentru a începe examenul:</h2>
+    <form action="/exam" method="POST" id="examForm">
+        <div class="form-group">
+            <input type="text" id="cnp" name="cnp" placeholder="Introduceti CNP-ul" maxlength="13" required/>
+        </div>
+        <button type="submit" class="start-button">START</button>
+    </form>
+</div>
+
 </html>

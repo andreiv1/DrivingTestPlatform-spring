@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "exam_attempts")
@@ -20,10 +21,10 @@ public class ExamAttempt {
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "start_time", nullable = false)
+    @Column(name = "start_time")
     private LocalDateTime startTime;
 
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time")
     private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
@@ -35,14 +36,15 @@ public class ExamAttempt {
     private DrivingLicenseType licenseType;
 
     //Intrebarile generate pentru test
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "exam_attempt_questions",
-            joinColumns = @JoinColumn(name = "exam_attempt_id"),
-            inverseJoinColumns = @JoinColumn(name = "question_id")
-    )
-    private List<Question> questions;
-
+//    @ManyToMany(fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name = "exam_attempt_questions",
+//            joinColumns = @JoinColumn(name = "exam_attempt_id"),
+//            inverseJoinColumns = @JoinColumn(name = "question_id")
+//    )
+//    private List<Question> questions;
+    @OneToMany(mappedBy = "examAttempt", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<ExamAttemptQuestion> examAttemptQuestions;
 
     //Raspunsurile la intrebarile generate pentru test date de utilizator
     @OneToMany(mappedBy = "examAttempt", cascade = CascadeType.ALL)
