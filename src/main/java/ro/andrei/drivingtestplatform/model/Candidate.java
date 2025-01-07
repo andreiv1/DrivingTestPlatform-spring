@@ -25,10 +25,10 @@ public class Candidate {
     @Column(nullable = false, unique = true)
     private String cnp;
 
-    @Column(nullable = false)
+    @Column(name="join_date", nullable = false)
     private LocalDate joinDate;
 
     @ManyToOne
     @JoinColumn(name = "exam_configuration_id", nullable = false)
-    private ExamConfiguration examConfig;
+    private ExamConfiguration examConfiguration;
 }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista întrebărilor</title>
+</head>
+<body>
+<div class="table-container">
+    <h1>Lista întrebărilor</h1>
+    <button th:onclick="|window.location.href='/questions/add'|">Adaugă Întrebare</button>
+    <button th:onclick="|window.location.href='/questions/import'|">Importa CSV</button>
+    <table>
+        <thead>
+        <tr>
+            <th>Întrebare</th>
+            <th>Categorie</th>
+            <th>Acțiuni</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="question : ${questions}">
+            <td th:text="${question.text}"></td>
+            <td th:text="${question.licenseType}"></td>
+            <td class="actions">
+                <button th:onclick="|window.location.href='/questions/view/' + ${question.id}|">Detalii</button>
+            </td>
+        </tr>
+        </tbody>
+<!--    <button class="add-button" th:onclick="|window.location.href='/candidates/add'|">Adaugă Candidat</button>-->
+<!--    <table>-->
+<!--        <thead>-->
+<!--        <tr>-->
+<!--            <th>Nume</th>-->
+<!--            <th>CNP</th>-->
+<!--            <th>Data înscrierii</th>-->
+<!--            <th>Acțiuni</th>-->
+<!--        </tr>-->
+<!--        </thead>-->
+<!--        <tbody>-->
+<!--        <tr th:each="candidate : ${candidates}">-->
+<!--            <td th:text="${candidate.name}"></td>-->
+<!--            <td th:text="${candidate.cnp}"></td>-->
+<!--            <td th:text="${candidate.joinDate}"></td>-->
+<!--            <td class="actions">-->
+<!--                <button th:onclick="|window.location.href='/candidates/view/' + ${candidate.id}|">Detalii</button>-->
+<!--            </td>-->
+<!--        </tr>-->
+<!--        </tbody>-->
+<!--    </table>-->
+</div>
+</body>
+</html>

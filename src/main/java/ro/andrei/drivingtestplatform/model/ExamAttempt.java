@@ -52,7 +52,4 @@ public class ExamAttempt {
     @ManyToOne
     @JoinColumn(name = "candidate_id", nullable = false)
     private Candidate candidate;
-
-
-
 }

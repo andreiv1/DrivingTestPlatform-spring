@@ -5,13 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-public class CandidateResponse {
+public class QuestionResponse {
     private Long id;
-    private String name;
-    private String cnp;
-    private String joinDate;
+    private String text;
+    private String licenseType;
 }

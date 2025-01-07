@@ -7,14 +7,14 @@
 <body>
 <div class="form-container">
     <h1>Adaugă Candidat</h1>
-    <form action="#" method="post">
+    <form action="/candidates/add" method="post">
         <label for="name">Nume</label>
         <input type="text" id="name" name="name" required>
         <label for="cnp">CNP:</label>
         <input type="text" id="cnp" name="cnp" required>
         <!-- select with exam configurations -->
         <label for="examConfig">Configurație examen:</label>
-        <select id="examConfig">
+        <select id="examConfig" name="examConfigId">
             <option th:each="examConfig : ${examConfigs}"
                     th:value="${examConfig.id}"
                     th:text="${examConfig.drivingLicenseType}"></option>
