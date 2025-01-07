@@ -43,6 +43,11 @@ public class ExamController {
                                     @RequestParam("questionId") Long questionId,
                                     @RequestParam(name = "selectedAnswers", required = false) List<Long> selectedAnswers,
                                     Model model) {
+        if(selectedAnswers == null || selectedAnswers.isEmpty()){
+            model.addAttribute("error", "Please select at least one answer");
+            return "exam/index";
+        }
+
         // Procesează răspunsurile
         System.out.println("Exam Attempt ID: " + examAttemptId);
         System.out.println("Selected Answers: " + selectedAnswers);
@@ -52,8 +57,18 @@ public class ExamController {
 
         // Get next question
         var response = examService.getNextQuestion(examAttemptId);
+        if(response == null) {
+            return "redirect:/exam/finish?examAttemptId=" + examAttemptId;
+        }
         model.addAttribute("examAttempt", response);
         return "exam/index";
+    }
+
+    @GetMapping("/exam/finish")
+    public String finishExam(@RequestParam("examAttemptId") Long examAttemptId,
+                             Model model) {
+
+        return "exam/finish";
     }
 
 }

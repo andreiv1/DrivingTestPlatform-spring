@@ -103,7 +103,7 @@ public class ExamService {
     }
 
     public ExamAttemptResponse startExam(String candidateCnp) {
-        ExamAttempt examAttempt = examAttemptRepository.findByCandidate_Cnp(candidateCnp);
+        ExamAttempt examAttempt = examAttemptRepository.findLatestNotStartedAttempt(candidateCnp);
         if(examAttempt == null) {
             throw new RuntimeException("Exam attempt not found");
         }
@@ -167,15 +167,31 @@ public class ExamService {
             }
 
             examAttemptAnswer.setAnswer(answer);
+
+            //TODO: check if any questions left before incrementing index
+
+            examAttempt.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex() + 1);
+
             examAttemptAnswerRepository.save(examAttemptAnswer);
         }
 
-        //TODO: check if any questions left
-        examAttempt.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex() + 1);
+
+
     }
 
     public ExamAttemptResponse getNextQuestion(Long examAttemptId) {
         ExamAttempt examAttempt = examAttemptRepository.findById(examAttemptId).orElse(null);
+
+        //Check if there are any questions left
+        if(examAttempt.getCurrentQuestionIndex() >= examAttempt.getExamAttemptQuestions().size()) {
+            //TODO exam ended - handle failed, when it suddenly ends because of the time and because of the score limit not being reached
+            examAttempt.setStatus(ExamStatus.FINISHED);
+            examAttempt.setEndTime(LocalDateTime.now());
+            examAttemptRepository.save(examAttempt);
+            return null;
+        }
+
+
         if(examAttempt == null) {
             throw new RuntimeException("Exam attempt not found");
         }
@@ -189,8 +205,13 @@ public class ExamService {
         response.setId(examAttempt.getId());
         response.setStart(examAttempt.getStartTime());
         response.setEnd(examAttempt.getEndTime());
-
+        response.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex());
         ExamAttemptResponse.Question examAttemptQuestionResponse = new ExamAttemptResponse.Question();
+        if(currentQuestion == null) {
+            //TODO exam ended
+            response.setCurrentQuestion(null);
+            return response;
+        }
         examAttemptQuestionResponse.setId(currentQuestion.getId());
         examAttemptQuestionResponse.setQuestionId(currentQuestion.getQuestion().getId());
         examAttemptQuestionResponse.setText(currentQuestion.getQuestion().getQuestionText());
