@@ -21,7 +21,7 @@
 
 </ul>
 
-    <input type="hidden" name="questionId" th:value="${examAttempt.getCurrentQuestion().id}">
+    <input type="hidden" name="questionId" th:value="${examAttempt.getCurrentQuestion().questionId}">
     <input type="hidden" name="examAttemptId" th:value="${examAttempt.id}">
     <button type="submit" id="sendButton">Trimite Raspunsul</button>
 </form>

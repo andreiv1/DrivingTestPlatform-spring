@@ -115,7 +115,6 @@ public class ExamService {
         examAttempt.setStartTime(LocalDateTime.now());
         examAttempt.setStatus(ExamStatus.IN_PROGRESS);
         examAttempt.setEndTime(examAttempt.getStartTime().plusMinutes(examConfiguration.getDurationInMinutes()));
-
         examAttemptRepository.save(examAttempt);
 
         ExamAttemptResponse response = new ExamAttemptResponse();
@@ -123,9 +122,15 @@ public class ExamService {
         response.setStart(examAttempt.getStartTime());
         response.setEnd(examAttempt.getEndTime());
 
-        var currentQuestion = examAttemptQuestionsRepository.findByExamAttempt_IdAndOrderIndex(examAttempt.getId(), 0);
+        ExamAttemptQuestion currentQuestion = examAttemptQuestionsRepository
+                .findByExamAttempt_IdAndOrderIndex(
+                        examAttempt.getId(),
+                        examAttempt.getCurrentQuestionIndex());
+
         ExamAttemptResponse.Question examAttemptQuestionResponse = new ExamAttemptResponse.Question();
+
         examAttemptQuestionResponse.setId(currentQuestion.getId());
+        examAttemptQuestionResponse.setQuestionId(currentQuestion.getQuestion().getId());
         examAttemptQuestionResponse.setText(currentQuestion.getQuestion().getQuestionText());
 
         var answers = new LinkedHashMap<Long,String>();
@@ -141,20 +146,32 @@ public class ExamService {
 
     public void saveExamAttemptAnswer(Long examAttemptId, Long questionId, List<Long> selectedAnswersIds) {
         ExamAttempt examAttempt = examAttemptRepository.findById(examAttemptId).orElse(null);
+
+        if(examAttempt == null) {
+            throw new RuntimeException("Exam attempt with id " + examAttemptId + " not found");
+        }
+
         for(var selectedAnswerId : selectedAnswersIds){
             Question question = questionRepository.findById(questionId).orElse(null);
-
+            if(question == null) {
+                throw new RuntimeException("Question with id " + questionId + " not found");
+            }
 
             ExamAttemptAnswer examAttemptAnswer = new ExamAttemptAnswer();
             examAttemptAnswer.setExamAttempt(examAttempt);
             examAttemptAnswer.setQuestion(question);
             examAttemptAnswer.setAnsweredAt(LocalDateTime.now());
             Answer answer = answerRepository.findById(selectedAnswerId).orElse(null);
+            if(answer == null) {
+                throw new RuntimeException("Answer with id " + selectedAnswerId + " not found");
+            }
 
             examAttemptAnswer.setAnswer(answer);
             examAttemptAnswerRepository.save(examAttemptAnswer);
         }
 
+        //TODO: check if any questions left
+        examAttempt.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex() + 1);
     }
 
     public ExamAttemptResponse getNextQuestion(Long examAttemptId) {
@@ -163,7 +180,11 @@ public class ExamService {
             throw new RuntimeException("Exam attempt not found");
         }
 
-        var currentQuestion = examAttemptQuestionsRepository.findByExamAttempt_IdAndOrderIndex(examAttempt.getId(), 1);
+        var currentQuestion = examAttemptQuestionsRepository.findByExamAttempt_IdAndOrderIndex(
+                examAttempt.getId(),
+                examAttempt.getCurrentQuestionIndex()
+        );
+
         ExamAttemptResponse response = new ExamAttemptResponse();
         response.setId(examAttempt.getId());
         response.setStart(examAttempt.getStartTime());
@@ -171,7 +192,17 @@ public class ExamService {
 
         ExamAttemptResponse.Question examAttemptQuestionResponse = new ExamAttemptResponse.Question();
         examAttemptQuestionResponse.setId(currentQuestion.getId());
+        examAttemptQuestionResponse.setQuestionId(currentQuestion.getQuestion().getId());
         examAttemptQuestionResponse.setText(currentQuestion.getQuestion().getQuestionText());
+
+        var answers = new LinkedHashMap<Long,String>();
+        for(var answer : currentQuestion.getQuestion().getAnswers()){
+            answers.put(answer.getId(), answer.getAnswerText());
+        }
+        examAttemptQuestionResponse.setAnswers(answers);
+
+        response.setCurrentQuestion(examAttemptQuestionResponse);
+
         return  response;
     }
 }
