@@ -5,6 +5,26 @@
     <title>Title</title>
 </head>
 <body>
+<form action="#" th:action="@{/exam/submit}" method="post">
+<div class="question-text">
+    <p th:text="${examAttempt.getCurrentQuestion().text}"></p>
+</div>
+<ul class="answers">
+    <li th:each="answer : ${examAttempt.getCurrentQuestion().answers}">
+        <input type="checkbox"
+               th:id="'answer' + ${answer.getKey()}"
+               name="selectedAnswers"
+               th:value="${answer.getKey()}">
+        <label th:for="'answer' + ${answer.getKey()}"
+               th:text="${answer.getValue()}"></label>
+    </li>
+
+</ul>
+
+    <input type="hidden" name="questionId" th:value="${examAttempt.getCurrentQuestion().id}">
+    <input type="hidden" name="examAttemptId" th:value="${examAttempt.id}">
+    <button type="submit" id="sendButton">Trimite Raspunsul</button>
+</form>
 
 </body>
 </html>

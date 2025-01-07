@@ -54,4 +54,7 @@ public class ExamAttempt {
     @ManyToOne
     @JoinColumn(name = "candidate_id", nullable = false)
     private Candidate candidate;
+
+    @Column(name = "current_question_index")
+    private int currentQuestionIndex = 0;
 }

@@ -2,11 +2,13 @@ package ro.andrei.drivingtestplatform.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ro.andrei.drivingtestplatform.model.DrivingLicenseType;
 import ro.andrei.drivingtestplatform.service.ExamService;
+
+import java.util.List;
 
 @Controller
 public class ExamController {
@@ -27,16 +29,31 @@ public class ExamController {
         examService.generateExam(candidateId);
         return "redirect:/candidates/view/" + candidateId;
     }
-    @PostMapping("/exam")
-    public String startExam(@RequestParam("cnp") String cnp) {
-        System.out.println("Starting exam for candidate with CNP: " + cnp);
+    @PostMapping("/exam/start")
+    public String startExam(@RequestParam("cnp") String cnp,
+                            Model model) {
 
-        return "redirect:/exam";
+        var response = examService.startExam(cnp);
+        model.addAttribute("examAttempt", response);
+        return "exam/index";
     }
 
-    @PostMapping("/exam/next")
-    public String nextQuestion() {
-        return "redirect:/exam";
+    @PostMapping("/exam/submit")
+    public String submitExamAnswers(@RequestParam("examAttemptId") Long examAttemptId,
+                                    @RequestParam("questionId") Long questionId,
+                                    @RequestParam(name = "selectedAnswers", required = false) List<Long> selectedAnswers,
+                                    Model model) {
+        // Procesează răspunsurile
+        System.out.println("Exam Attempt ID: " + examAttemptId);
+        System.out.println("Selected Answers: " + selectedAnswers);
+
+        // Logica pentru validarea și salvarea răspunsurilor
+        examService.saveExamAttemptAnswer(examAttemptId, questionId, selectedAnswers);
+
+        // Get next question
+        var response = examService.getNextQuestion(examAttemptId);
+        model.addAttribute("examAttempt", response);
+        return "exam/index";
     }
 
 }

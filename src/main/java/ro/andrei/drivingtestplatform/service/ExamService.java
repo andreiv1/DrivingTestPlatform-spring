@@ -4,24 +4,26 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.andrei.drivingtestplatform.model.*;
-import ro.andrei.drivingtestplatform.repository.CandidateRepository;
-import ro.andrei.drivingtestplatform.repository.ExamAttemptRepository;
-import ro.andrei.drivingtestplatform.repository.ExamConfigurationRepository;
-import ro.andrei.drivingtestplatform.repository.QuestionRepository;
+import ro.andrei.drivingtestplatform.repository.*;
+import ro.andrei.drivingtestplatform.response.ExamAttemptResponse;
 import ro.andrei.drivingtestplatform.response.ExamConfigurationResponse;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
 @Service
 public class ExamService {
+    private final AnswerRepository answerRepository;
     private final ExamConfigurationRepository examConfigurationRepository;
-
     private final ExamAttemptRepository examAttemptRepository;
-    private final CandidateRepository candidateRepository;
 
+    private final ExamAttemptAnswerRepository examAttemptAnswerRepository;
+
+    private final ExamAttemptQuestionRepository examAttemptQuestionsRepository;
+    private final CandidateRepository candidateRepository;
     private final QuestionRepository questionRepository;
 
     @PostConstruct
@@ -40,9 +42,12 @@ public class ExamService {
         }
     }
     @Autowired
-    public ExamService(ExamConfigurationRepository examConfigurationRepository, ExamAttemptRepository examAttemptRepository, CandidateRepository candidateRepository, QuestionRepository questionRepository) {
+    public ExamService(AnswerRepository answerRepository, ExamConfigurationRepository examConfigurationRepository, ExamAttemptRepository examAttemptRepository, ExamAttemptAnswerRepository examAttemptAnswerRepository, ExamAttemptQuestionRepository examAttemptQuestionsRepository, CandidateRepository candidateRepository, QuestionRepository questionRepository) {
+        this.answerRepository = answerRepository;
         this.examConfigurationRepository = examConfigurationRepository;
         this.examAttemptRepository = examAttemptRepository;
+        this.examAttemptAnswerRepository = examAttemptAnswerRepository;
+        this.examAttemptQuestionsRepository = examAttemptQuestionsRepository;
         this.candidateRepository = candidateRepository;
         this.questionRepository = questionRepository;
     }
@@ -97,10 +102,14 @@ public class ExamService {
 
     }
 
-    public void startExam(Long examAttemptId) {
-        ExamAttempt examAttempt = examAttemptRepository.findById(examAttemptId).orElse(null);
+    public ExamAttemptResponse startExam(String candidateCnp) {
+        ExamAttempt examAttempt = examAttemptRepository.findByCandidate_Cnp(candidateCnp);
         if(examAttempt == null) {
             throw new RuntimeException("Exam attempt not found");
+        }
+        if(examAttempt.getStatus() == ExamStatus.IN_PROGRESS) {
+            //TODO continue exam
+//            throw new RuntimeException("Exam attempt already in progress");
         }
         ExamConfiguration examConfiguration = examConfigurationRepository.findByLicenseType(examAttempt.getLicenseType());
         examAttempt.setStartTime(LocalDateTime.now());
@@ -108,6 +117,61 @@ public class ExamService {
         examAttempt.setEndTime(examAttempt.getStartTime().plusMinutes(examConfiguration.getDurationInMinutes()));
 
         examAttemptRepository.save(examAttempt);
+
+        ExamAttemptResponse response = new ExamAttemptResponse();
+        response.setId(examAttempt.getId());
+        response.setStart(examAttempt.getStartTime());
+        response.setEnd(examAttempt.getEndTime());
+
+        var currentQuestion = examAttemptQuestionsRepository.findByExamAttempt_IdAndOrderIndex(examAttempt.getId(), 0);
+        ExamAttemptResponse.Question examAttemptQuestionResponse = new ExamAttemptResponse.Question();
+        examAttemptQuestionResponse.setId(currentQuestion.getId());
+        examAttemptQuestionResponse.setText(currentQuestion.getQuestion().getQuestionText());
+
+        var answers = new LinkedHashMap<Long,String>();
+        for(var answer : currentQuestion.getQuestion().getAnswers()){
+            answers.put(answer.getId(), answer.getAnswerText());
+        }
+        examAttemptQuestionResponse.setAnswers(answers);
+
+        response.setCurrentQuestion(examAttemptQuestionResponse);
+
+        return response;
     }
 
+    public void saveExamAttemptAnswer(Long examAttemptId, Long questionId, List<Long> selectedAnswersIds) {
+        ExamAttempt examAttempt = examAttemptRepository.findById(examAttemptId).orElse(null);
+        for(var selectedAnswerId : selectedAnswersIds){
+            Question question = questionRepository.findById(questionId).orElse(null);
+
+
+            ExamAttemptAnswer examAttemptAnswer = new ExamAttemptAnswer();
+            examAttemptAnswer.setExamAttempt(examAttempt);
+            examAttemptAnswer.setQuestion(question);
+            examAttemptAnswer.setAnsweredAt(LocalDateTime.now());
+            Answer answer = answerRepository.findById(selectedAnswerId).orElse(null);
+
+            examAttemptAnswer.setAnswer(answer);
+            examAttemptAnswerRepository.save(examAttemptAnswer);
+        }
+
+    }
+
+    public ExamAttemptResponse getNextQuestion(Long examAttemptId) {
+        ExamAttempt examAttempt = examAttemptRepository.findById(examAttemptId).orElse(null);
+        if(examAttempt == null) {
+            throw new RuntimeException("Exam attempt not found");
+        }
+
+        var currentQuestion = examAttemptQuestionsRepository.findByExamAttempt_IdAndOrderIndex(examAttempt.getId(), 1);
+        ExamAttemptResponse response = new ExamAttemptResponse();
+        response.setId(examAttempt.getId());
+        response.setStart(examAttempt.getStartTime());
+        response.setEnd(examAttempt.getEndTime());
+
+        ExamAttemptResponse.Question examAttemptQuestionResponse = new ExamAttemptResponse.Question();
+        examAttemptQuestionResponse.setId(currentQuestion.getId());
+        examAttemptQuestionResponse.setText(currentQuestion.getQuestion().getQuestionText());
+        return  response;
+    }
 }
