@@ -3,6 +3,7 @@ package ro.andrei.drivingtestplatform.service;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ro.andrei.drivingtestplatform.factory.ExamObjectFactory;
 import ro.andrei.drivingtestplatform.model.*;
 import ro.andrei.drivingtestplatform.repository.*;
 import ro.andrei.drivingtestplatform.response.ExamAttemptResponse;
@@ -26,6 +27,8 @@ public class ExamService {
     private final CandidateRepository candidateRepository;
     private final QuestionRepository questionRepository;
 
+    private final ExamObjectFactory examObjectFactory;
+
     @PostConstruct
     private void init(){
         List<ExamConfiguration> examConfigurations = List.of(
@@ -42,7 +45,7 @@ public class ExamService {
         }
     }
     @Autowired
-    public ExamService(AnswerRepository answerRepository, ExamConfigurationRepository examConfigurationRepository, ExamAttemptRepository examAttemptRepository, ExamAttemptAnswerRepository examAttemptAnswerRepository, ExamAttemptQuestionRepository examAttemptQuestionsRepository, CandidateRepository candidateRepository, QuestionRepository questionRepository) {
+    public ExamService(AnswerRepository answerRepository, ExamConfigurationRepository examConfigurationRepository, ExamAttemptRepository examAttemptRepository, ExamAttemptAnswerRepository examAttemptAnswerRepository, ExamAttemptQuestionRepository examAttemptQuestionsRepository, CandidateRepository candidateRepository, QuestionRepository questionRepository, ExamObjectFactory examObjectFactory) {
         this.answerRepository = answerRepository;
         this.examConfigurationRepository = examConfigurationRepository;
         this.examAttemptRepository = examAttemptRepository;
@@ -50,6 +53,7 @@ public class ExamService {
         this.examAttemptQuestionsRepository = examAttemptQuestionsRepository;
         this.candidateRepository = candidateRepository;
         this.questionRepository = questionRepository;
+        this.examObjectFactory = examObjectFactory;
     }
 
 
@@ -75,13 +79,7 @@ public class ExamService {
         }
 
 
-
-        ExamAttempt examAttempt = new ExamAttempt();
-        examAttempt.setStatus(ExamStatus.NOT_STARTED);
-        examAttempt.setLicenseType(examConfiguration.getLicenseType());
-        examAttempt.setCandidate(candidate);
-        examAttempt.setStartTime(null);
-        examAttempt.setEndTime(null);
+        ExamAttempt examAttempt = examObjectFactory.createExamAttempt(candidate, examConfiguration);
 
         var questions = questionRepository.getRandQuestionsByLicenseType(
                 examConfiguration.getLicenseType().toString(),
@@ -90,11 +88,7 @@ public class ExamService {
         Set<ExamAttemptQuestion> examAttemptQuestions = new HashSet<>();
         int index = 0;
         for(var question : questions){
-            var examAttemptQuestion = new ExamAttemptQuestion();
-            examAttemptQuestion.setExamAttempt(examAttempt);
-            examAttemptQuestion.setQuestion(question);
-            examAttemptQuestion.setOrderIndex(questions.indexOf(question));
-            examAttemptQuestion.setOrderIndex(index++);
+            ExamAttemptQuestion examAttemptQuestion = examObjectFactory.createExamAttemptQuestion(examAttempt, question, index++);
             examAttemptQuestions.add(examAttemptQuestion);
         }
         examAttempt.setExamAttemptQuestions(examAttemptQuestions);
@@ -109,7 +103,7 @@ public class ExamService {
         }
         if(examAttempt.getStatus() == ExamStatus.IN_PROGRESS) {
             //TODO continue exam
-//            throw new RuntimeException("Exam attempt already in progress");
+            //throw new RuntimeException("Exam attempt already in progress");
         }
         ExamConfiguration examConfiguration = examConfigurationRepository.findByLicenseType(examAttempt.getLicenseType());
         examAttempt.setStartTime(LocalDateTime.now());
@@ -127,6 +121,14 @@ public class ExamService {
                         examAttempt.getId(),
                         examAttempt.getCurrentQuestionIndex());
 
+        ExamAttemptResponse.Question examAttemptQuestionResponse = getExamAttemptQuestionResponse(currentQuestion);
+
+        response.setCurrentQuestion(examAttemptQuestionResponse);
+
+        return response;
+    }
+
+    private static ExamAttemptResponse.Question getExamAttemptQuestionResponse(ExamAttemptQuestion currentQuestion) {
         ExamAttemptResponse.Question examAttemptQuestionResponse = new ExamAttemptResponse.Question();
 
         examAttemptQuestionResponse.setId(currentQuestion.getId());
@@ -138,10 +140,7 @@ public class ExamService {
             answers.put(answer.getId(), answer.getAnswerText());
         }
         examAttemptQuestionResponse.setAnswers(answers);
-
-        response.setCurrentQuestion(examAttemptQuestionResponse);
-
-        return response;
+        return examAttemptQuestionResponse;
     }
 
     public void saveExamAttemptAnswer(Long examAttemptId, Long questionId, List<Long> selectedAnswersIds) {
@@ -157,23 +156,17 @@ public class ExamService {
                 throw new RuntimeException("Question with id " + questionId + " not found");
             }
 
-            ExamAttemptAnswer examAttemptAnswer = new ExamAttemptAnswer();
-            examAttemptAnswer.setExamAttempt(examAttempt);
-            examAttemptAnswer.setQuestion(question);
-            examAttemptAnswer.setAnsweredAt(LocalDateTime.now());
             Answer answer = answerRepository.findById(selectedAnswerId).orElse(null);
             if(answer == null) {
                 throw new RuntimeException("Answer with id " + selectedAnswerId + " not found");
             }
-
-            examAttemptAnswer.setAnswer(answer);
-
-            //TODO: check if any questions left before incrementing index
-
-            examAttempt.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex() + 1);
-
+            ExamAttemptAnswer examAttemptAnswer = examObjectFactory.createExamAttemptAnswer(examAttempt, question, answer);
             examAttemptAnswerRepository.save(examAttemptAnswer);
         }
+
+        //TODO: check if any questions left before incrementing index
+        examAttempt.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex() + 1);
+        examAttemptRepository.save(examAttempt);
 
 
 
@@ -192,10 +185,6 @@ public class ExamService {
         }
 
 
-        if(examAttempt == null) {
-            throw new RuntimeException("Exam attempt not found");
-        }
-
         var currentQuestion = examAttemptQuestionsRepository.findByExamAttempt_IdAndOrderIndex(
                 examAttempt.getId(),
                 examAttempt.getCurrentQuestionIndex()
@@ -206,21 +195,14 @@ public class ExamService {
         response.setStart(examAttempt.getStartTime());
         response.setEnd(examAttempt.getEndTime());
         response.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex());
-        ExamAttemptResponse.Question examAttemptQuestionResponse = new ExamAttemptResponse.Question();
+
+
         if(currentQuestion == null) {
             //TODO exam ended
             response.setCurrentQuestion(null);
             return response;
         }
-        examAttemptQuestionResponse.setId(currentQuestion.getId());
-        examAttemptQuestionResponse.setQuestionId(currentQuestion.getQuestion().getId());
-        examAttemptQuestionResponse.setText(currentQuestion.getQuestion().getQuestionText());
-
-        var answers = new LinkedHashMap<Long,String>();
-        for(var answer : currentQuestion.getQuestion().getAnswers()){
-            answers.put(answer.getId(), answer.getAnswerText());
-        }
-        examAttemptQuestionResponse.setAnswers(answers);
+        ExamAttemptResponse.Question examAttemptQuestionResponse = getExamAttemptQuestionResponse(currentQuestion);
 
         response.setCurrentQuestion(examAttemptQuestionResponse);
 
