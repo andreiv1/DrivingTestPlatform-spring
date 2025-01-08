@@ -14,5 +14,6 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     List<Question> getRandQuestionsByLicenseType(@Param("license_type") String licenseType,
                                                  @Param("count") int count);
 
+    int countByDrivingLicenseType(@Param("license_type") DrivingLicenseType licenseType);
 
 }

@@ -43,18 +43,22 @@
     </h2>
 
     <table>
-        <th>
+        <thead>
             <th>Id</th>
             <th>Data început</th>
             <th>Data sfarsit</th>
             <th>Categorie examen</th>
             <th>Status</th>
-        </th>
-        <!--            <tr th:each="attempt, iterStat : ${candidate.attempts}">-->
-        <!--                <td th:text="${iterStat.count}"></td>-->
-        <!--                <td th:text="${#dates.format(attempt.date, 'dd-MM-yyyy')}"></td>-->
-        <!--                <td th:text="${attempt.result}"></td>-->
-        <!--            </tr>-->
+        </thead>
+        <tbody>
+            <tr th:each="attempt : ${examAttempts}">
+                <td th:text="${attempt.id}"></td>
+                <td th:text="${attempt.startDate}"></td>
+                <td th:text="${attempt.endDate}"></td>
+                <td th:text="${attempt.licenseType}"></td>
+                <td th:text="${attempt.status}"></td>
+            </tr>
+        </tbody>
     </table>
     </div>
 </div>

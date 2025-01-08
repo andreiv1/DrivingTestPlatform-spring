@@ -7,6 +7,8 @@ import ro.andrei.drivingtestplatform.model.Candidate;
 import ro.andrei.drivingtestplatform.model.ExamAttempt;
 import ro.andrei.drivingtestplatform.model.ExamStatus;
 
+import java.util.List;
+
 public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> {
     @Query("SELECT ea FROM ExamAttempt ea WHERE ea.candidate.cnp = :cnp " +
             "AND ea.status = 'NOT_STARTED' " +
@@ -14,5 +16,6 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> 
     ExamAttempt findLatestNotStartedAttempt(@Param("cnp") String cnp);
     boolean existsByCandidateAndStatus(Candidate candidate, ExamStatus status);
 
+    List<ExamAttempt> findAllByCandidate_Id(Long candidateId);
 
 }

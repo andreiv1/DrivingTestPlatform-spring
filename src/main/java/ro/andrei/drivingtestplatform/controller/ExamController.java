@@ -48,14 +48,9 @@ public class ExamController {
             return "exam/index";
         }
 
-        // Procesează răspunsurile
-        System.out.println("Exam Attempt ID: " + examAttemptId);
-        System.out.println("Selected Answers: " + selectedAnswers);
 
-        // Logica pentru validarea și salvarea răspunsurilor
         examService.saveExamAttemptAnswer(examAttemptId, questionId, selectedAnswers);
 
-        // Get next question
         var response = examService.getNextQuestion(examAttemptId);
         if(response == null) {
             return "redirect:/exam/finish?examAttemptId=" + examAttemptId;

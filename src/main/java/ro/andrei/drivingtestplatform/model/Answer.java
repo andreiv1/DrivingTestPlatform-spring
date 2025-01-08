@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 @Entity
 @Table(name = "answers")
 @Getter
@@ -24,5 +27,6 @@ public class Answer {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "question_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Question question;
 }

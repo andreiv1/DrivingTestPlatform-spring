@@ -43,11 +43,11 @@ public class ExamAttempt {
 //            inverseJoinColumns = @JoinColumn(name = "question_id")
 //    )
 //    private List<Question> questions;
-    @OneToMany(mappedBy = "examAttempt", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "examAttempt", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<ExamAttemptQuestion> examAttemptQuestions;
 
     //Raspunsurile la intrebarile generate pentru test date de utilizator
-    @OneToMany(mappedBy = "examAttempt", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "examAttempt", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExamAttemptAnswer> examAttemptAnswers;
 
     //Candidatul care sustine incercarea

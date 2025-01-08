@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.andrei.drivingtestplatform.dataimport.QuestionFileProcessor;
 import ro.andrei.drivingtestplatform.model.Answer;
+import ro.andrei.drivingtestplatform.model.ExamAttemptQuestion;
 import ro.andrei.drivingtestplatform.model.ExamConfiguration;
 import ro.andrei.drivingtestplatform.model.Question;
 import ro.andrei.drivingtestplatform.repository.AnswerRepository;
@@ -16,7 +17,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,4 +84,5 @@ public class QuestionService {
                 question.getAnswers().stream().map(Answer::isCorrect).collect(Collectors.toList())
         );
     }
+
 }

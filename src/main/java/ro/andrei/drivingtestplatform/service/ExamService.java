@@ -81,6 +81,11 @@ public class ExamService {
 
         ExamAttempt examAttempt = examObjectFactory.createExamAttempt(candidate, examConfiguration);
 
+        //Check if there are enough questions to generate the exam
+        if(questionRepository.countByDrivingLicenseType(examConfiguration.getLicenseType()) < examConfiguration.getNumberOfQuestions()) {
+            throw new RuntimeException("Not enough questions to generate the exam");
+        }
+
         var questions = questionRepository.getRandQuestionsByLicenseType(
                 examConfiguration.getLicenseType().toString(),
                 examConfiguration.getNumberOfQuestions());
@@ -93,7 +98,6 @@ public class ExamService {
         }
         examAttempt.setExamAttemptQuestions(examAttemptQuestions);
         examAttemptRepository.save(examAttempt);
-
     }
 
     public ExamAttemptResponse startExam(String candidateCnp) {
@@ -149,7 +153,12 @@ public class ExamService {
         if(examAttempt == null) {
             throw new RuntimeException("Exam attempt with id " + examAttemptId + " not found");
         }
-
+        //Check if the answers belong to the question
+        for(var selectedAnswerId : selectedAnswersIds){
+            if(!answerRepository.existsByIdAndQuestion_Id(selectedAnswerId, questionId)){
+                throw new RuntimeException("Answer with id " + selectedAnswerId + " does not belong to question with id " + questionId);
+            }
+        }
         for(var selectedAnswerId : selectedAnswersIds){
             Question question = questionRepository.findById(questionId).orElse(null);
             if(question == null) {
@@ -185,10 +194,15 @@ public class ExamService {
         }
 
 
+
         var currentQuestion = examAttemptQuestionsRepository.findByExamAttempt_IdAndOrderIndex(
                 examAttempt.getId(),
                 examAttempt.getCurrentQuestionIndex()
         );
+
+        //Check if current question was answered
+        //If not, return the last unanswered question
+
 
         ExamAttemptResponse response = new ExamAttemptResponse();
         response.setId(examAttempt.getId());
