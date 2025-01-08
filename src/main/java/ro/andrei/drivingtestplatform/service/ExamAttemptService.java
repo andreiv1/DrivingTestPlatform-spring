@@ -48,7 +48,7 @@ public class ExamAttemptService {
 
     public List<ExamAttemptListingRespose> getExamAttemptsByCandidateId(Long candidateId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        return examAttemptRepository.findAllByCandidate_Id(candidateId)
+        return examAttemptRepository.findAllByCandidate_IdOrderByIdDesc(candidateId)
                 .stream()
                 .map(ExamAttemptListingRespose::new)
                 .collect(Collectors.toList());
@@ -76,7 +76,8 @@ public class ExamAttemptService {
         ExamAttempt examAttempt = examObjectFactory.createExamAttempt(candidate, examConfiguration);
 
         //Check if there are enough questions to generate the exam
-        if(questionRepository.countByDrivingLicenseType(examConfiguration.getLicenseType()) < examConfiguration.getNumberOfQuestions()) {
+        boolean enoughQuestions = questionRepository.countByDrivingLicenseType(examConfiguration.getLicenseType()) >= examConfiguration.getNumberOfQuestions();
+        if(!enoughQuestions) {
             throw new RuntimeException("Not enough questions to generate the exam");
         }
 
@@ -110,39 +111,24 @@ public class ExamAttemptService {
         examAttempt.setEndTime(examAttempt.getStartTime().plusMinutes(examConfiguration.getDurationInMinutes()));
         examAttemptRepository.save(examAttempt);
 
-        ExamAttemptResponse response = new ExamAttemptResponse();
-        response.setId(examAttempt.getId());
-        response.setStart(examAttempt.getStartTime());
-        response.setEnd(examAttempt.getEndTime());
-        response.setTotalQuestions(examConfiguration.getNumberOfQuestions());
-        response.setCorrectAnswers(0);
-        response.setWrongAnswers(0);
-        response.setStatus(examAttempt.getStatus().toString());
-
         ExamAttemptQuestion currentQuestion = examAttemptQuestionsRepository
                 .findByExamAttempt_IdAndOrderIndex(
                         examAttempt.getId(),
                         examAttempt.getCurrentQuestionIndex());
 
-        ExamAttemptResponse.Question examAttemptQuestionResponse = getExamAttemptQuestionResponse(currentQuestion);
+        ExamAttemptResponse.Question examAttemptQuestionResponse = new ExamAttemptResponse.Question(currentQuestion);
 
-        response.setCurrentQuestion(examAttemptQuestionResponse);
-        return response;
-    }
-
-    private static ExamAttemptResponse.Question getExamAttemptQuestionResponse(ExamAttemptQuestion currentQuestion) {
-        ExamAttemptResponse.Question examAttemptQuestionResponse = new ExamAttemptResponse.Question();
-
-        examAttemptQuestionResponse.setId(currentQuestion.getId());
-        examAttemptQuestionResponse.setQuestionId(currentQuestion.getQuestion().getId());
-        examAttemptQuestionResponse.setText(currentQuestion.getQuestion().getQuestionText());
-
-        var answers = new LinkedHashMap<Long,String>();
-        for(var answer : currentQuestion.getQuestion().getAnswers()){
-            answers.put(answer.getId(), answer.getAnswerText());
-        }
-        examAttemptQuestionResponse.setAnswers(answers);
-        return examAttemptQuestionResponse;
+        return ExamAttemptResponse.builder()
+                .id(examAttempt.getId())
+                .start(examAttempt.getStartTime())
+                .end(examAttempt.getEndTime())
+                .totalQuestions(examConfiguration.getNumberOfQuestions())
+                .correctAnswers(0)
+                .wrongAnswers(0)
+                .status(examAttempt.getStatus().toString())
+                .currentQuestion(examAttemptQuestionResponse)
+                .currentQuestionIndex(examAttempt.getCurrentQuestionIndex())
+                .build();
     }
 
 
@@ -171,13 +157,14 @@ public class ExamAttemptService {
 
         int maxAllowedMistakes = examConfiguration.getNumberOfQuestions() - examConfiguration.getPassingScore();
         boolean isExamFailed = examAttempt.getWrongAnswersCounter() > maxAllowedMistakes;
+
         if(isExamFailed) {
             examAttempt.setStatus(ExamStatus.FAILED);
             examAttempt.setEndTime(LocalDateTime.now());
             examAttemptRepository.save(examAttempt);
-
             return null;
         }
+
         //Check if there are any questions left
         if(examAttempt.getCurrentQuestionIndex() >= examConfiguration.getNumberOfQuestions()) {
             //TODO exam ended - handle failed, when it suddenly ends because of the time and because of the score limit not being reached
@@ -194,27 +181,19 @@ public class ExamAttemptService {
 
         int correctAnswers = examAttempt.getCurrentQuestionIndex() - examAttempt.getWrongAnswersCounter();
 
-        ExamAttemptResponse response = new ExamAttemptResponse();
-        response.setId(examAttempt.getId());
-        response.setStart(examAttempt.getStartTime());
-        response.setEnd(examAttempt.getEndTime());
-        response.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex());
-        response.setStatus(examAttempt.getStatus().toString());
-        response.setTotalQuestions(examConfiguration.getNumberOfQuestions());
-        response.setCorrectAnswers(correctAnswers);
-        response.setWrongAnswers(examAttempt.getWrongAnswersCounter());
-        response.setStatus(examAttempt.getStatus().toString());
+        ExamAttemptResponse.Question examAttemptQuestionResponse = new ExamAttemptResponse.Question(currentQuestion);
 
-        if(currentQuestion == null) {
-            //TODO exam ended
-            response.setCurrentQuestion(null);
-            return response;
-        }
-        ExamAttemptResponse.Question examAttemptQuestionResponse = getExamAttemptQuestionResponse(currentQuestion);
-
-        response.setCurrentQuestion(examAttemptQuestionResponse);
-
-        return response;
+        return ExamAttemptResponse.builder()
+                .id(examAttempt.getId())
+                .start(examAttempt.getStartTime())
+                .end(examAttempt.getEndTime())
+                .currentQuestionIndex(examAttempt.getCurrentQuestionIndex())
+                .status(examAttempt.getStatus().toString())
+                .totalQuestions(examConfiguration.getNumberOfQuestions())
+                .correctAnswers(correctAnswers)
+                .wrongAnswers(examAttempt.getWrongAnswersCounter())
+                .currentQuestion(examAttemptQuestionResponse)
+                .build();
     }
 
     public boolean isAttemptPassed(Long examAttemptId) {

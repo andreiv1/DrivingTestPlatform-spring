@@ -6,24 +6,59 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ro.andrei.drivingtestplatform.model.ExamAttempt;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class ExamAttemptListingRespose {
     private Long id;
-    private String startDate;
-    private String endDate;
+    private String startTime;
+    private String endTime;
     private String licenseType;
     private String status;
 
     public ExamAttemptListingRespose(ExamAttempt e){
-        this.id = e.getId();
-        this.startDate = e.getStartTime() == null ? "Not started" : e.getStartTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-        this.endDate = e.getEndTime() == null ? "Not finished" : e.getEndTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-        this.licenseType = e.getLicenseType().toString();
-        this.status = e.getStatus().name();
+        setId(e.getId());
+        setStartTime(e.getStartTime());
+        setEndTime(e.getEndTime());
+        setLicenseType(e.getLicenseType().toString());
+        setStatus(e.getStatus().name());
+    }
+
+
+    public void setStartTime(LocalDateTime startTime) {
+        if (startTime == null) {
+            this.startTime = "-";
+        } else {
+            this.startTime = startTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        }
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        if (endTime == null) {
+            this.endTime = "-";
+        } else {
+            this.endTime = endTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        }
+    }
+
+    public void setStatus(String status) {
+        switch (status) {
+            case "NOT_STARTED":
+                this.status = "Nu a început";
+                break;
+            case "IN_PROGRESS":
+                this.status = "În progres";
+                break;
+            case "FAILED":
+                this.status = "RESPINS";
+                break;
+            case "PASSED":
+                this.status = "Admis";
+                break;
+            default:
+                this.status = "Necunoscut";
+        }
     }
 }

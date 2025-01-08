@@ -16,6 +16,7 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> 
     ExamAttempt findLatestNotStartedAttempt(@Param("cnp") String cnp);
     boolean existsByCandidateAndStatus(Candidate candidate, ExamStatus status);
 
-    List<ExamAttempt> findAllByCandidate_Id(Long candidateId);
+    List<ExamAttempt> findAllByCandidate_IdOrderByIdDesc(Long candidateId);
+
 
 }
