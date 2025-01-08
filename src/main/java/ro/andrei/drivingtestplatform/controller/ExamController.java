@@ -51,7 +51,7 @@ public class ExamController {
         }
 
         ExamAttemptResponse response =
-                examService.next(examAttemptId, questionId, selectedAnswers);
+                examService.continueExam(examAttemptId, questionId, selectedAnswers);
 
         if(response == null) {
             return "redirect:/exam/finish?examAttemptId=" + examAttemptId;

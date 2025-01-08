@@ -115,8 +115,8 @@ public class ExamAttemptService {
         response.setStart(examAttempt.getStartTime());
         response.setEnd(examAttempt.getEndTime());
         response.setTotalQuestions(examConfiguration.getNumberOfQuestions());
-        response.setCorrectAnswers(examConfiguration.getNumberOfQuestions() - examAttempt.getWrongAnswersCounter());
-        response.setWrongAnswers(examAttempt.getWrongAnswersCounter());
+        response.setCorrectAnswers(0);
+        response.setWrongAnswers(0);
         response.setStatus(examAttempt.getStatus().toString());
 
         ExamAttemptQuestion currentQuestion = examAttemptQuestionsRepository
@@ -153,7 +153,7 @@ public class ExamAttemptService {
      * @param selectedAnswersIds the selected answers ids
      * @return the next question
      */
-    public ExamAttemptResponse next(Long examAttemptId, Long questionId, List<Long> selectedAnswersIds){
+    public ExamAttemptResponse continueExam(Long examAttemptId, Long questionId, List<Long> selectedAnswersIds){
         examAttemptAnswerService.saveAnswers(examAttemptId, questionId, selectedAnswersIds);
         return nextQuestion(examAttemptId);
     }
@@ -200,7 +200,8 @@ public class ExamAttemptService {
         response.setEnd(examAttempt.getEndTime());
         response.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex());
         response.setStatus(examAttempt.getStatus().toString());
-        response.setCorrectAnswers(examConfiguration.getNumberOfQuestions() - examAttempt.getWrongAnswersCounter());
+        response.setTotalQuestions(examConfiguration.getNumberOfQuestions());
+        response.setCorrectAnswers(examAttempt.getCurrentQuestionIndex() - examAttempt.getWrongAnswersCounter());
         response.setWrongAnswers(examAttempt.getWrongAnswersCounter());
         response.setStatus(examAttempt.getStatus().toString());
 
