@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Încercare examen auto</title>
 </head>
 <body>
+<div class="time">
+    <input type="hidden" id="endTime" th:value="${examAttempt.getEnd()}"></input>
+    <h3 id="time"></h3>
+</div>
 <h1>Întrebarea nr. <span th:text="${examAttempt.getCurrentQuestionIndex() + 1}"></span> din <span th:text="${examAttempt.getTotalQuestions()}"></span></h1>
 <div class="exam-progress">
     <h5>Corecte: <span th:text="${examAttempt.getCorrectAnswers()}"></span></h5>
@@ -50,5 +54,24 @@
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', toggleSubmitButton);
     });
+
+    const endTime = new Date(document.getElementById('endTime').value);
+    const timeElement = document.getElementById('time');
+
+    function updateTimer() {
+        const currentTime = new Date().getTime();
+        const timeLeft = endTime - currentTime;
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        timeElement.innerText = `Timp ramas: ${minutes}:${seconds}`;
+        if (timeLeft < 0) {
+            window.location.href = '/exam/finish?examAttemptId=' + document.getElementById('examAttemptId').value;
+        }
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
 </script>
+
+
 </html>
