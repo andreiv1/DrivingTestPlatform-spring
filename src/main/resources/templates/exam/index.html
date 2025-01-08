@@ -5,9 +5,14 @@
     <title>Title</title>
 </head>
 <body>
-<h1>Question #<span th:text="${examAttempt.getCurrentQuestionIndex() + 1}"></span></h1>
+<h1>Question #<span th:text="${examAttempt.getCurrentQuestionIndex() + 1}"></span> din <span th:text="${examAttempt.getTotalQuestions()}"></span></h1>
+<div class="exam-progress">
+    <h5>Corecte: <span th:text="${examAttempt.getCorrectAnswers()}"></span></h5>
+    <h5>Greșite: <span th:text="${examAttempt.getWrongAnswers()}"></span></h5>
+</div>
 <form action="#" th:action="@{/exam/submit}" method="post">
-<div class="question-text">
+
+    <div class="question-text">
     <p th:text="${examAttempt.getCurrentQuestion().text}"></p>
 </div>
 <ul class="answers">

@@ -6,7 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ro.andrei.drivingtestplatform.request.QuestionRequest;
-import ro.andrei.drivingtestplatform.service.ExamService;
+import ro.andrei.drivingtestplatform.service.ExamConfigurationService;
 import ro.andrei.drivingtestplatform.service.QuestionService;
 
 import java.io.IOException;
@@ -15,13 +15,13 @@ import java.util.List;
 
 @Controller
 public class QuestionController {
-    private final ExamService examService;
     private final QuestionService questionService;
+    private final ExamConfigurationService examConfigurationService;
 
     @Autowired
-    public QuestionController(ExamService examService, QuestionService questionService) {
-        this.examService = examService;
+    public QuestionController(QuestionService questionService, ExamConfigurationService examConfigurationService) {
         this.questionService = questionService;
+        this.examConfigurationService = examConfigurationService;
     }
 
     @GetMapping("/questions")
@@ -36,7 +36,7 @@ public class QuestionController {
         questionRequest.setAnswers(new ArrayList<>(List.of("", "", "")));
         questionRequest.setCorrectAnswers(new ArrayList<>(List.of(false,false,false)));
 
-        model.addAttribute("examConfigs", examService.getExamConfigurations());
+        model.addAttribute("examConfigs", examConfigurationService.getExamConfigurations());
         model.addAttribute("question", questionRequest);
         model.addAttribute("mode", "add");
 
@@ -50,7 +50,7 @@ public class QuestionController {
     }
     @GetMapping("/questions/import")
     public String importQuestions(Model model){
-        model.addAttribute("examConfigs", examService.getExamConfigurations());
+        model.addAttribute("examConfigs", examConfigurationService.getExamConfigurations());
 
         return "questions/import";
     }
@@ -65,7 +65,7 @@ public class QuestionController {
 
     @GetMapping("/questions/view/{id}")
     public String viewQuestion(Model model, @PathVariable String id){
-        model.addAttribute("examConfigs", examService.getExamConfigurations());
+        model.addAttribute("examConfigs", examConfigurationService.getExamConfigurations());
         model.addAttribute("question", questionService.getQuestion(Long.parseLong(id)));
         model.addAttribute("mode", "view");
         return "questions/form";

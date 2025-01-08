@@ -1,1 +1,23 @@
-Finish exam
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div class="exam-failed" th:if="${!isPassed}">
+    <h1>
+        Testul a luat sfârşit. Aţi fost declarat RESPINS la examenul de teorie.
+    </h1>
+</div>
+
+<div class="exam-passed" th:if="${isPassed}">
+    <h1>
+        Testul a luat sfârşit. Aţi fost declarat ADMIS la examenul de teorie.
+    </h1>
+</div>
+
+
+</body>
+</html>

@@ -9,18 +9,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import ro.andrei.drivingtestplatform.request.CandidateRequest;
 import ro.andrei.drivingtestplatform.service.CandidateService;
 import ro.andrei.drivingtestplatform.service.ExamAttemptService;
-import ro.andrei.drivingtestplatform.service.ExamService;
+import ro.andrei.drivingtestplatform.service.ExamConfigurationService;
 
 @Controller
 public class CandidateController {
-    private final ExamService examService;
-
+    private final ExamConfigurationService examConfigurationService;
     private final ExamAttemptService examAttemptService;
     private final CandidateService candidateService;
 
     @Autowired
-    public CandidateController(ExamService examService, ExamAttemptService examAttemptService, CandidateService candidateService) {
-        this.examService = examService;
+    public CandidateController(ExamAttemptService examService, ExamConfigurationService examConfigurationService, ExamAttemptService examAttemptService, CandidateService candidateService) {
+        this.examConfigurationService = examConfigurationService;
         this.examAttemptService = examAttemptService;
         this.candidateService = candidateService;
     }
@@ -33,7 +32,7 @@ public class CandidateController {
 
     @GetMapping("/candidates/add")
     public String addCandidate(Model model){
-        model.addAttribute("examConfigs", examService.getExamConfigurations());
+        model.addAttribute("examConfigs", examConfigurationService.getExamConfigurations());
         model.addAttribute("mode", "add");
 
         return "candidates/form";
@@ -48,7 +47,7 @@ public class CandidateController {
     @GetMapping("/candidates/view/{id}")
     public String viewCandidate(Model model, @PathVariable String id){
         model.addAttribute("mode", "view");
-        model.addAttribute("examConfigs", examService.getExamConfigurations());
+        model.addAttribute("examConfigs", examConfigurationService.getExamConfigurations());
         model.addAttribute("candidate", candidateService.getCandidateById(Long.parseLong(id)));
         model.addAttribute("examAttempts", examAttemptService.getExamAttemptsByCandidateId(Long.parseLong(id)));
         return "candidates/form";

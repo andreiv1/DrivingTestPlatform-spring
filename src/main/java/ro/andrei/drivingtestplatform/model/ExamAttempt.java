@@ -58,7 +58,6 @@ public class ExamAttempt {
     @Column(name = "current_question_index")
     private int currentQuestionIndex = 0;
 
-    private int correctAnswers = 0;
-
-    private int wrongAnswers = 0;
+    @Column(name = "wrong_answers")
+    private int wrongAnswersCounter = 0;
 }

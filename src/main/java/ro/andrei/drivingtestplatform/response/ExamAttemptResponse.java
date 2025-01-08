@@ -33,6 +33,9 @@ public class ExamAttemptResponse
     private Question currentQuestion;
     private int currentQuestionIndex;
 
-
+    private String status;
+    private int totalQuestions;
+    private int correctAnswers;
+    private int wrongAnswers;
 
 }

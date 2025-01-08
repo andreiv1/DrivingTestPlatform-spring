@@ -6,17 +6,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ro.andrei.drivingtestplatform.service.ExamService;
+import ro.andrei.drivingtestplatform.response.ExamAttemptResponse;
+import ro.andrei.drivingtestplatform.service.ExamAttemptService;
 
 import java.util.List;
 
 @Controller
 public class ExamController {
-    private final ExamService examService;
+    private final ExamAttemptService examService;
 
     @Autowired
-    public ExamController(ExamService examService) {
+    public ExamController(ExamAttemptService examService) {
         this.examService = examService;
+
     }
 
     @GetMapping("/exam")
@@ -26,14 +28,14 @@ public class ExamController {
 
     @PostMapping("/exam/generate")
     public String generateExamForCandidate(@RequestParam("candidateId") Long candidateId) {
-        examService.generateExam(candidateId);
+        examService.generate(candidateId);
         return "redirect:/candidates/view/" + candidateId;
     }
     @PostMapping("/exam/start")
     public String startExam(@RequestParam("cnp") String cnp,
                             Model model) {
 
-        var response = examService.startExam(cnp);
+        var response = examService.start(cnp);
         model.addAttribute("examAttempt", response);
         return "exam/index";
     }
@@ -48,10 +50,9 @@ public class ExamController {
             return "exam/index";
         }
 
+        ExamAttemptResponse response =
+                examService.next(examAttemptId, questionId, selectedAnswers);
 
-        examService.saveExamAttemptAnswer(examAttemptId, questionId, selectedAnswers);
-
-        var response = examService.getNextQuestion(examAttemptId);
         if(response == null) {
             return "redirect:/exam/finish?examAttemptId=" + examAttemptId;
         }
@@ -62,7 +63,7 @@ public class ExamController {
     @GetMapping("/exam/finish")
     public String finishExam(@RequestParam("examAttemptId") Long examAttemptId,
                              Model model) {
-
+        model.addAttribute("isPassed", examService.isAttemptPassed(examAttemptId));
         return "exam/finish";
     }
 
