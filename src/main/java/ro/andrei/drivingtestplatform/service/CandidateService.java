@@ -20,21 +20,24 @@ public class CandidateService {
     private final ExamConfigurationRepository examConfigurationRepository;
 
     @Autowired
-    public CandidateService(CandidateRepository candidateRepository, ExamConfigurationRepository examConfigurationRepository) {
+    public CandidateService(CandidateRepository candidateRepository,
+                            ExamConfigurationRepository examConfigurationRepository) {
         this.candidateRepository = candidateRepository;
         this.examConfigurationRepository = examConfigurationRepository;
     }
 
     public void addCandidate(CandidateRequest candidateRequest) {
 
-        ExamConfiguration examConfiguration = examConfigurationRepository.findById(candidateRequest.getExamConfigId())
+        ExamConfiguration examConfiguration = examConfigurationRepository
+                .findById(candidateRequest.getExamConfigId())
                 .orElseThrow(() -> new RuntimeException("Exam configuration not found"));
 
-        Candidate candidate = new Candidate();
-        candidate.setJoinDate(LocalDate.now());
-        candidate.setName(candidateRequest.getName());
-        candidate.setCnp(candidateRequest.getCnp());
-        candidate.setExamConfiguration(examConfiguration);
+        Candidate candidate = Candidate.builder()
+                .joinDate(LocalDate.now())
+                .name(candidateRequest.getName())
+                .cnp(candidateRequest.getCnp())
+                .examConfiguration(examConfiguration)
+                .build();
 
         candidateRepository.save(candidate);
     }
@@ -42,25 +45,15 @@ public class CandidateService {
     public List<CandidateResponse> getAllCandidates() {
         List<Candidate> candidates = candidateRepository.findAll();
         return candidates.stream()
-                .map(candidate ->  new CandidateResponse(
-                        candidate.getId(),
-                        candidate.getName(),
-                        candidate.getCnp(),
-                        candidate.getJoinDate().toString(),
-                        candidate.getExamConfiguration().getId()
-                ))
+                .map(c -> new CandidateResponse(c))
                 .collect(Collectors.toList());
     }
 
     public CandidateResponse getCandidateById(Long id) {
-        Candidate candidate = candidateRepository.findById(id)
+        Candidate candidate = candidateRepository
+                .findById(id)
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
 
-        return new CandidateResponse(
-                candidate.getId(),
-                candidate.getName(),
-                candidate.getCnp(),
-                candidate.getJoinDate().toString(),
-                candidate.getExamConfiguration().getId());
+        return new CandidateResponse(candidate);
     }
 }

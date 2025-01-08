@@ -59,7 +59,7 @@ public class QuestionController {
     public String importQuestionsPost(
             @RequestParam("examConfigId") Long examConfigId,
             @RequestParam("file") MultipartFile file) throws IOException {
-        questionService.importQuestionsFromCsv(file.getInputStream(), examConfigId);
+        questionService.importQuestionsFromFile(file.getInputStream(), examConfigId);
         return "redirect:/questions";
     }
 

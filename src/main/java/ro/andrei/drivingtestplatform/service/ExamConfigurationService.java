@@ -3,7 +3,7 @@ package ro.andrei.drivingtestplatform.service;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ro.andrei.drivingtestplatform.model.DrivingLicenseType;
+import ro.andrei.drivingtestplatform.model.enums.DrivingLicenseType;
 import ro.andrei.drivingtestplatform.model.ExamConfiguration;
 import ro.andrei.drivingtestplatform.repository.ExamConfigurationRepository;
 import ro.andrei.drivingtestplatform.response.ExamConfigurationResponse;

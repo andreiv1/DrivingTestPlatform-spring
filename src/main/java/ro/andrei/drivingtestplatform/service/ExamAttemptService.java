@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.andrei.drivingtestplatform.factory.ExamObjectFactory;
 import ro.andrei.drivingtestplatform.model.*;
+import ro.andrei.drivingtestplatform.model.ExamAttempt;
+import ro.andrei.drivingtestplatform.model.enums.ExamStatus;
 import ro.andrei.drivingtestplatform.repository.*;
 import ro.andrei.drivingtestplatform.response.ExamAttemptListingRespose;
 import ro.andrei.drivingtestplatform.response.ExamAttemptResponse;
@@ -28,7 +30,13 @@ public class ExamAttemptService {
 
 
     @Autowired
-    public ExamAttemptService(ExamAttemptRepository examAttemptRepository, CandidateRepository candidateRepository, ExamObjectFactory examObjectFactory, QuestionRepository questionRepository, ExamConfigurationRepository examConfigurationRepository, ExamAttemptQuestionRepository examAttemptQuestionsRepository, ExamAttemptAnswerService examAttemptAnswerService) {
+    public ExamAttemptService(ExamAttemptRepository examAttemptRepository,
+                              CandidateRepository candidateRepository,
+                              ExamObjectFactory examObjectFactory,
+                              QuestionRepository questionRepository,
+                              ExamConfigurationRepository examConfigurationRepository,
+                              ExamAttemptQuestionRepository examAttemptQuestionsRepository,
+                              ExamAttemptAnswerService examAttemptAnswerService) {
         this.examAttemptRepository = examAttemptRepository;
         this.candidateRepository = candidateRepository;
         this.examObjectFactory = examObjectFactory;
@@ -40,17 +48,9 @@ public class ExamAttemptService {
 
     public List<ExamAttemptListingRespose> getExamAttemptsByCandidateId(Long candidateId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        return examAttemptRepository.findAllByCandidate_Id(candidateId).stream().map(
-                    e -> new ExamAttemptListingRespose(
-                            e.getId(),
-                            e.getStartTime() != null ?
-                            e.getStartTime().format(formatter) : "",
-                            e.getEndTime() != null ?
-                            e.getEndTime().format(formatter) : "",
-                            e.getLicenseType().toString(),
-                            e.getStatus().toString()
-                    )
-                )
+        return examAttemptRepository.findAllByCandidate_Id(candidateId)
+                .stream()
+                .map(ExamAttemptListingRespose::new)
                 .collect(Collectors.toList());
     }
 
@@ -59,10 +59,9 @@ public class ExamAttemptService {
      * @param candidateId the candidate id
      */
     public void generate(Long candidateId){
-        Candidate candidate = candidateRepository.findById(candidateId).orElse(null);
-        if(candidate == null) {
-            throw new RuntimeException("Candidate not found");
-        }
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
 
         ExamConfiguration examConfiguration = candidate.getExamConfiguration();
 
@@ -88,7 +87,8 @@ public class ExamAttemptService {
         Set<ExamAttemptQuestion> examAttemptQuestions = new HashSet<>();
         int index = 0;
         for(var question : questions){
-            ExamAttemptQuestion examAttemptQuestion = examObjectFactory.createExamAttemptQuestion(examAttempt, question, index++);
+            ExamAttemptQuestion examAttemptQuestion = examObjectFactory
+                    .createExamAttemptQuestion(examAttempt, question, index++);
             examAttemptQuestions.add(examAttemptQuestion);
         }
         examAttempt.setExamAttemptQuestions(examAttemptQuestions);
@@ -201,7 +201,7 @@ public class ExamAttemptService {
         response.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex());
         response.setStatus(examAttempt.getStatus().toString());
         response.setTotalQuestions(examConfiguration.getNumberOfQuestions());
-        response.setCorrectAnswers(examAttempt.getCurrentQuestionIndex() - examAttempt.getWrongAnswersCounter());
+        response.setCorrectAnswers(correctAnswers);
         response.setWrongAnswers(examAttempt.getWrongAnswersCounter());
         response.setStatus(examAttempt.getStatus().toString());
 

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ro.andrei.drivingtestplatform.model.enums.DrivingLicenseType;
+import ro.andrei.drivingtestplatform.model.enums.ExamStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

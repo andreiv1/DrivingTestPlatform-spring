@@ -3,7 +3,7 @@ package ro.andrei.drivingtestplatform.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ro.andrei.drivingtestplatform.model.DrivingLicenseType;
+import ro.andrei.drivingtestplatform.model.enums.DrivingLicenseType;
 import ro.andrei.drivingtestplatform.model.Question;
 
 import java.util.List;

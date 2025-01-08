@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ro.andrei.drivingtestplatform.model.Question;
 
 import java.util.List;
 
@@ -18,4 +19,10 @@ public class QuestionResponse {
     private Long examConfigId;
     private List<String> answers;
     private List<Boolean> correctAnswers;
+
+    public QuestionResponse(Question q) {
+         this.id = q.getId();
+         this.text = q.getQuestionText();
+         this.licenseType = q.getDrivingLicenseType().toString();
+    }
 }

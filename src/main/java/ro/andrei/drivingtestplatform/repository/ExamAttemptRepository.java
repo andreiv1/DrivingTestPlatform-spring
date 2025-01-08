@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ro.andrei.drivingtestplatform.model.Candidate;
 import ro.andrei.drivingtestplatform.model.ExamAttempt;
-import ro.andrei.drivingtestplatform.model.ExamStatus;
+import ro.andrei.drivingtestplatform.model.enums.ExamStatus;
 
 import java.util.List;
 

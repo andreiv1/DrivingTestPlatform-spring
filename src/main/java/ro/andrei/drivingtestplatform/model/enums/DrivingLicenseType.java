@@ -1,4 +1,4 @@
-package ro.andrei.drivingtestplatform.model;
+package ro.andrei.drivingtestplatform.model.enums;
 
 public enum DrivingLicenseType {
     A,

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ro.andrei.drivingtestplatform.model.enums.DrivingLicenseType;
 
 
 @Entity

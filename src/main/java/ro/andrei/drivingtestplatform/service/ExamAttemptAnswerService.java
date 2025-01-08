@@ -1,8 +1,6 @@
 package ro.andrei.drivingtestplatform.service;
 
-import org.antlr.v4.runtime.misc.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 import ro.andrei.drivingtestplatform.factory.ExamObjectFactory;
 import ro.andrei.drivingtestplatform.model.Answer;
@@ -16,7 +14,6 @@ import ro.andrei.drivingtestplatform.repository.QuestionRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ExamAttemptAnswerService {
@@ -27,7 +24,11 @@ public class ExamAttemptAnswerService {
     private final ExamAttemptAnswerRepository examAttemptAnswerRepository;
 
     @Autowired
-    public ExamAttemptAnswerService(ExamAttemptRepository examAttemptRepository, AnswerRepository answerRepository, QuestionRepository questionRepository, ExamObjectFactory examObjectFactory, ExamAttemptAnswerRepository examAttemptAnswerRepository) {
+    public ExamAttemptAnswerService(ExamAttemptRepository examAttemptRepository,
+                                    AnswerRepository answerRepository,
+                                    QuestionRepository questionRepository,
+                                    ExamObjectFactory examObjectFactory,
+                                    ExamAttemptAnswerRepository examAttemptAnswerRepository) {
         this.examAttemptRepository = examAttemptRepository;
         this.answerRepository = answerRepository;
         this.questionRepository = questionRepository;
@@ -36,11 +37,10 @@ public class ExamAttemptAnswerService {
     }
 
     public void saveAnswers(Long examAttemptId, Long questionId, List<Long> selectedAnswersIds){
-        ExamAttempt examAttempt = examAttemptRepository.findById(examAttemptId).orElse(null);
+        ExamAttempt examAttempt = examAttemptRepository
+                .findById(examAttemptId)
+                .orElseThrow(() -> new RuntimeException("Exam attempt with id " + examAttemptId + " not found"));
 
-        if(examAttempt == null) {
-            throw new RuntimeException("Exam attempt with id " + examAttemptId + " not found");
-        }
         //Check if the answers belong to the question
         for(var selectedAnswerId : selectedAnswersIds){
             if(!answerRepository.existsByIdAndQuestion_Id(selectedAnswerId, questionId)){
@@ -49,16 +49,15 @@ public class ExamAttemptAnswerService {
         }
 
         List<ExamAttemptAnswer> givenAnswers = new ArrayList<>();
-        for(var selectedAnswerId : selectedAnswersIds){
-            Question question = questionRepository.findById(questionId).orElse(null);
-            if(question == null) {
-                throw new RuntimeException("Question with id " + questionId + " not found");
-            }
 
-            Answer answer = answerRepository.findById(selectedAnswerId).orElse(null);
-            if(answer == null) {
-                throw new RuntimeException("Answer with id " + selectedAnswerId + " not found");
-            }
+        for(var selectedAnswerId : selectedAnswersIds){
+            Question question = questionRepository
+                    .findById(questionId)
+                    .orElseThrow(() -> new RuntimeException("Question with id " + questionId + " not found"));
+
+            Answer answer = answerRepository.
+                    findById(selectedAnswerId)
+                    .orElseThrow(() -> new RuntimeException("Answer with id " + selectedAnswerId + " not found"));
 
             ExamAttemptAnswer examAttemptAnswer = examObjectFactory
                     .createExamAttemptAnswer(examAttempt, question, answer);
@@ -67,7 +66,7 @@ public class ExamAttemptAnswerService {
         }
         examAttemptAnswerRepository.saveAll(givenAnswers);
         evaluateExamQuestion(questionId, givenAnswers);
-        //TODO: check if any questions left before incrementing index
+
         examAttempt.setCurrentQuestionIndex(examAttempt.getCurrentQuestionIndex() + 1);
         examAttemptRepository.save(examAttempt);
 
@@ -89,6 +88,7 @@ public class ExamAttemptAnswerService {
                 .sorted()
                 .toList();
 
+        boolean isNotCorrect = !correctAnswersIds.equals(givenAnswersIds);
         if(!correctAnswersIds.equals(givenAnswersIds)){
             //Increment the wrong answers count
             ExamAttempt examAttempt = givenAnswers.get(0).getExamAttempt();

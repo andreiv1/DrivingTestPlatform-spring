@@ -2,13 +2,10 @@ package ro.andrei.drivingtestplatform.factory;
 
 import org.springframework.stereotype.Component;
 import ro.andrei.drivingtestplatform.model.*;
-import ro.andrei.drivingtestplatform.repository.ExamAttemptAnswerRepository;
-import ro.andrei.drivingtestplatform.repository.ExamAttemptQuestionRepository;
-import ro.andrei.drivingtestplatform.repository.ExamAttemptRepository;
+import ro.andrei.drivingtestplatform.model.ExamAttempt;
+import ro.andrei.drivingtestplatform.model.enums.ExamStatus;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Component
 public class ExamObjectFactoryImpl implements ExamObjectFactory {
@@ -21,7 +18,6 @@ public class ExamObjectFactoryImpl implements ExamObjectFactory {
         examAttempt.setLicenseType(examConfiguration.getLicenseType());
         examAttempt.setStartTime(null);
         examAttempt.setEndTime(null);
-
 
         return examAttempt;
     }
