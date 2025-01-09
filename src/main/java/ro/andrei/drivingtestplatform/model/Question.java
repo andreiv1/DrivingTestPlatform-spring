@@ -30,4 +30,8 @@ public class Question {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     @OrderBy("id ASC")
     private List<Answer> answers;
+
+    @Lob
+    @Column(name = "imageBlob")
+    private byte[] image;
 }

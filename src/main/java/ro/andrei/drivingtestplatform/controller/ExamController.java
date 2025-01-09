@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ro.andrei.drivingtestplatform.exceptions.ExamAttemptNotFoundException;
 import ro.andrei.drivingtestplatform.response.ExamAttemptResponse;
 import ro.andrei.drivingtestplatform.service.ExamAttemptService;
 
@@ -33,7 +34,7 @@ public class ExamController {
     }
     @PostMapping("/exam/start")
     public String startExam(@RequestParam("cnp") String cnp,
-                            Model model) {
+                            Model model) throws ExamAttemptNotFoundException {
         var response = examService.start(cnp);
         model.addAttribute("examAttempt", response);
         return "exam/index";
@@ -44,7 +45,7 @@ public class ExamController {
     public String submitExamAnswers(@RequestParam("examAttemptId") Long examAttemptId,
                                     @RequestParam("questionId") Long questionId,
                                     @RequestParam(name = "selectedAnswers", required = false) List<Long> selectedAnswers,
-                                    Model model) {
+                                    Model model) throws ExamAttemptNotFoundException {
         if(selectedAnswers == null || selectedAnswers.isEmpty()){
             model.addAttribute("error", "Please select at least one answer");
             return "exam/index";

@@ -2,6 +2,7 @@ package ro.andrei.drivingtestplatform.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ro.andrei.drivingtestplatform.exceptions.ExamAttemptNotFoundException;
 import ro.andrei.drivingtestplatform.factory.ExamObjectFactory;
 import ro.andrei.drivingtestplatform.model.*;
 import ro.andrei.drivingtestplatform.model.ExamAttempt;
@@ -13,7 +14,6 @@ import ro.andrei.drivingtestplatform.response.ExamAttemptResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -99,10 +99,10 @@ public class ExamAttemptService {
      * Start an exam attempt for a candidate
      * @return the exam attempt response
      */
-    public ExamAttemptResponse start(String candidateCnp){
+    public ExamAttemptResponse start(String candidateCnp) throws ExamAttemptNotFoundException {
         ExamAttempt examAttempt = examAttemptRepository.findLatestNotStartedAttempt(candidateCnp);
         if(examAttempt == null) {
-            throw new RuntimeException("Exam attempt not found");
+            throw new ExamAttemptNotFoundException("Exam attempt not found");
         }
         ExamConfiguration examConfiguration = examConfigurationRepository.findByLicenseType(examAttempt.getLicenseType());
         examAttempt.setStartTime(LocalDateTime.now());
@@ -137,16 +137,16 @@ public class ExamAttemptService {
      * @param selectedAnswersIds the selected answers ids
      * @return the next question
      */
-    public ExamAttemptResponse continueExam(Long examAttemptId, Long questionId, List<Long> selectedAnswersIds){
+    public ExamAttemptResponse continueExam(Long examAttemptId, Long questionId, List<Long> selectedAnswersIds) throws ExamAttemptNotFoundException {
         examAttemptAnswerService.saveAnswers(examAttemptId, questionId, selectedAnswersIds);
         return nextQuestion(examAttemptId);
     }
-    private ExamAttemptResponse nextQuestion(Long examAttemptId){
+    private ExamAttemptResponse nextQuestion(Long examAttemptId) throws ExamAttemptNotFoundException {
         ExamAttempt examAttempt = examAttemptRepository.findById(examAttemptId).orElse(null);
 
         //Check if the exam attempt exists
         if(examAttempt == null) {
-            throw new RuntimeException("Exam attempt not found");
+            throw new ExamAttemptNotFoundException("Exam attempt not found");
         }
 
         //Check if the exam is not failed (multiple wrong answers)
