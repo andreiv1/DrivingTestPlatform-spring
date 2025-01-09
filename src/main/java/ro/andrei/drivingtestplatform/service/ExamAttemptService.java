@@ -27,8 +27,6 @@ public class ExamAttemptService {
     private final ExamConfigurationRepository examConfigurationRepository;
     private final ExamAttemptQuestionRepository examAttemptQuestionsRepository;
     private final ExamAttemptAnswerService examAttemptAnswerService;
-
-
     @Autowired
     public ExamAttemptService(ExamAttemptRepository examAttemptRepository,
                               CandidateRepository candidateRepository,
@@ -62,7 +60,6 @@ public class ExamAttemptService {
         Candidate candidate = candidateRepository.findById(candidateId)
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
 
-
         ExamConfiguration examConfiguration = candidate.getExamConfiguration();
 
         if(examAttemptRepository.existsByCandidateAndStatus(candidate, ExamStatus.IN_PROGRESS)) {
@@ -75,14 +72,17 @@ public class ExamAttemptService {
         ExamAttempt examAttempt = examObjectFactory.createExamAttempt(candidate, examConfiguration);
 
         //Check if there are enough questions to generate the exam
-        boolean enoughQuestions = questionRepository.countByDrivingLicenseType(examConfiguration.getLicenseType()) >= examConfiguration.getNumberOfQuestions();
+        boolean enoughQuestions = questionRepository
+                .countByDrivingLicenseType(examConfiguration.getLicenseType()) >= examConfiguration.getNumberOfQuestions();
+
         if(!enoughQuestions) {
             throw new RuntimeException("Not enough questions to generate the exam");
         }
 
         var questions = questionRepository.getRandQuestionsByLicenseType(
                 examConfiguration.getLicenseType().toString(),
-                examConfiguration.getNumberOfQuestions());
+                examConfiguration.getNumberOfQuestions()
+        );
 
         Set<ExamAttemptQuestion> examAttemptQuestions = new HashSet<>();
         int index = 0;
@@ -130,7 +130,6 @@ public class ExamAttemptService {
                 .build();
     }
 
-
     /**
      * Save the answers for the current question and return the next question
      * @param examAttemptId the exam attempt id
@@ -142,7 +141,6 @@ public class ExamAttemptService {
         examAttemptAnswerService.saveAnswers(examAttemptId, questionId, selectedAnswersIds);
         return nextQuestion(examAttemptId);
     }
-
     private ExamAttemptResponse nextQuestion(Long examAttemptId){
         ExamAttempt examAttempt = examAttemptRepository.findById(examAttemptId).orElse(null);
 
@@ -194,7 +192,6 @@ public class ExamAttemptService {
                 .currentQuestion(examAttemptQuestionResponse)
                 .build();
     }
-
     public boolean isAttemptPassed(Long examAttemptId) {
         ExamAttempt examAttempt = examAttemptRepository.findById(examAttemptId).orElse(null);
         if(examAttempt == null) {

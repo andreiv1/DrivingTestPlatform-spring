@@ -49,6 +49,11 @@ public class QuestionController {
         List<Boolean> sanitizedCorrectAnswers = questionRequest.getCorrectAnswers().stream()
                 .map(correct -> correct != null && correct)
                 .collect(Collectors.toList());
+        // Ensure the list has at least 3 elements
+        while (sanitizedCorrectAnswers.size() < 3) {
+            sanitizedCorrectAnswers.add(false);
+        }
+
         questionRequest.setCorrectAnswers(sanitizedCorrectAnswers);
         questionService.saveQuestion(questionRequest);
         if(questionRequest.getId() == null){

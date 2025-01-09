@@ -156,6 +156,7 @@
 
                     <input type="checkbox"
                            th:checked="${question.correctAnswers[iter.index]}"
+                           th:value="${question.correctAnswers[iter.index]}"
                            th:field="*{question.correctAnswers[__${iter.index}__]}"/>
                 </div>
             </div>

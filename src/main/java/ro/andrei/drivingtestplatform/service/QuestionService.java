@@ -47,10 +47,10 @@ public class QuestionService {
     }
     public void saveQuestion(QuestionRequest questionRequest) {
         boolean isAnswerArraysEqual = questionRequest.getCorrectAnswers().size() == questionRequest.getAnswers().size();
-        boolean isCorrectAnswersArrayEmpty = questionRequest.getCorrectAnswers().size() == 0;
+        boolean existsAtLeastOneCorrect = questionRequest.getCorrectAnswers().stream().anyMatch(Boolean::booleanValue);
         boolean isUpdate = questionRequest.getId() != null;
 
-        if(isCorrectAnswersArrayEmpty) {
+        if(!existsAtLeastOneCorrect) {
             throw new RuntimeException("At least one correct answer must be provided");
         }
         if(!isAnswerArraysEqual) {
