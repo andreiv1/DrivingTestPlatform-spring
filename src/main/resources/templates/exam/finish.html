@@ -2,8 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Rezultat Examen</title>
 </head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        text-align: center;
+        padding: 50px;
+    }
+
+    .exam-failed {
+        background-color: #ffe6e6;
+        border: 2px solid #ff4d4d;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 600px;
+    }
+
+    .exam-passed {
+        background-color: #e6ffe6;
+        border: 2px solid #4dff4d;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 600px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+</style>
+
 <body>
 
 <div class="exam-failed" th:if="${!isPassed}">

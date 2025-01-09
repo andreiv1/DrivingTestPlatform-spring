@@ -53,8 +53,8 @@
         <tbody>
             <tr th:each="attempt : ${examAttempts}">
                 <td th:text="${attempt.id}"></td>
-                <td th:text="${attempt.startDate}"></td>
-                <td th:text="${attempt.endDate}"></td>
+                <td th:text="${attempt.startTime}"></td>
+                <td th:text="${attempt.endTime}"></td>
                 <td th:text="${attempt.licenseType}"></td>
                 <td th:text="${attempt.status}"></td>
             </tr>

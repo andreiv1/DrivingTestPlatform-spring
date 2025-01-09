@@ -4,38 +4,121 @@
     <meta charset="UTF-8">
     <title>Încercare examen auto</title>
 </head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f9;
+        color: #333;
+    }
+
+    header {
+        background-color: #0044cc;
+        color: white;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .time {
+        text-align: right;
+        margin: 1rem;
+    }
+
+    .time h3 {
+        font-size: 1rem;
+        margin: 0;
+        color: #333;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+    }
+
+    .exam-progress {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .question-text {
+        margin-bottom: 1.5rem;
+    }
+
+    ul.answers {
+        list-style: none;
+        padding: 0;
+    }
+
+    ul.answers li {
+        margin-bottom: 1rem;
+    }
+
+    .answer-checkbox {
+        margin-right: 0.5rem;
+    }
+
+    button {
+        background-color: #0044cc;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+
+</style>
 <body>
-<div class="time">
-    <input type="hidden" id="endTime" th:value="${examAttempt.getEnd()}"></input>
-    <h3 id="time"></h3>
-</div>
-<h1>Întrebarea nr. <span th:text="${examAttempt.getCurrentQuestionIndex() + 1}"></span> din <span th:text="${examAttempt.getTotalQuestions()}"></span></h1>
-<div class="exam-progress">
-    <h5>Corecte: <span th:text="${examAttempt.getCorrectAnswers()}"></span></h5>
-    <h5>Greșite: <span th:text="${examAttempt.getWrongAnswers()}"></span></h5>
-</div>
-<form action="#" th:action="@{/exam/submit}" method="post">
+<div class="container">
+    <div class="time">
+        <input type="hidden" id="endTime" th:value="${examAttempt.getEnd()}">
+        <h3 id="time"></h3>
+    </div>
+    <h2>Întrebarea nr. <span th:text="${examAttempt.getCurrentQuestionIndex() + 1}"></span> din <span th:text="${examAttempt.getTotalQuestions()}"></span></h2>
 
-    <div class="question-text">
-    <p th:text="${examAttempt.getCurrentQuestion().text}"></p>
+    <div class="exam-progress">
+        <h2 style="color: forestgreen">Corecte: <span th:text="${examAttempt.getCorrectAnswers()}"></span></h2>
+        <h2 style="color: darkred">Greșite: <span th:text="${examAttempt.getWrongAnswers()}"></span></h2>
+    </div>
+
+    <form action="#" th:action="@{/exam/submit}" method="post">
+        <div class="question-text">
+            <h3 th:text="${examAttempt.getCurrentQuestion().text}"></h3>
+        </div>
+        <ul class="answers">
+            <li th:each="answer : ${examAttempt.getCurrentQuestion().answers}">
+                <input type="checkbox"
+                       th:id="'answer' + ${answer.getKey()}"
+                       name="selectedAnswers"
+                       th:value="${answer.getKey()}"
+                       class="answer-checkbox">
+                <label th:for="'answer' + ${answer.getKey()}"
+                       th:text="${answer.getValue()}"></label>
+            </li>
+        </ul>
+
+        <input type="hidden" name="questionId" th:value="${examAttempt.getCurrentQuestion().questionId}">
+        <input type="hidden" name="examAttemptId" th:value="${examAttempt.id}">
+        <button type="submit" id="sendButton" disabled>Trimite Răspunsul</button>
+    </form>
 </div>
-<ul class="answers">
-    <li th:each="answer : ${examAttempt.getCurrentQuestion().answers}">
-        <input type="checkbox"
-               th:id="'answer' + ${answer.getKey()}"
-               name="selectedAnswers"
-               th:value="${answer.getKey()}"
-               class="answer-checkbox">
-        <label th:for="'answer' + ${answer.getKey()}"
-               th:text="${answer.getValue()}"></label>
-    </li>
-
-</ul>
-
-    <input type="hidden" name="questionId" th:value="${examAttempt.getCurrentQuestion().questionId}">
-    <input type="hidden" name="examAttemptId" th:value="${examAttempt.id}">
-    <button type="submit" id="sendButton" disabled>Trimite Raspunsul</button>
-</form>
 
 </body>
 
@@ -61,8 +144,14 @@
     function updateTimer() {
         const currentTime = new Date().getTime();
         const timeLeft = endTime - currentTime;
-        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        if(minutes < 9) {
+            minutes = '0' + minutes;
+        }
+        if(seconds < 9) {
+            seconds = '0' + seconds;
+        }
         timeElement.innerText = `Timp ramas: ${minutes}:${seconds}`;
         if (timeLeft < 0) {
             window.location.href = '/exam/finish?examAttemptId=' + document.getElementById('examAttemptId').value;

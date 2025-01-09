@@ -4,9 +4,8 @@ import lombok.*;
 import ro.andrei.drivingtestplatform.model.ExamAttemptQuestion;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 @Getter
 @Setter
 //@Builder  //don't reinvent the wheel :)
@@ -35,8 +34,8 @@ public class ExamAttemptResponse
     }
 
     private final Long id;
-    private final LocalDateTime start;
-    private final LocalDateTime end;
+    private final String start;
+    private final String end;
     private final Question currentQuestion;
     private final int currentQuestionIndex;
     private final String status;
@@ -57,8 +56,8 @@ public class ExamAttemptResponse
     }
     public static class Builder {
         private Long id;
-        private LocalDateTime start;
-        private LocalDateTime end;
+        private String start;
+        private String end;
         private Question currentQuestion;
         private int currentQuestionIndex;
         private String status;
@@ -72,12 +71,12 @@ public class ExamAttemptResponse
         }
 
         public Builder start(LocalDateTime start) {
-            this.start = start;
+            this.start = start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")).toString();
             return this;
         }
 
         public Builder end(LocalDateTime end) {
-            this.end = end;
+            this.end = end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")).toString();
             return this;
         }
 
