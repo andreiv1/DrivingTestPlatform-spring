@@ -103,7 +103,7 @@
             <h3 th:text="${examAttempt.getCurrentQuestion().text}"></h3>
             <img th:if="${examAttempt.getCurrentQuestion().base64Image != null and examAttempt.getCurrentQuestion().base64Image != ''}"
                  th:src="'data:image/png;base64,' + ${examAttempt.getCurrentQuestion().base64Image}"
-                 width="400" height="200"
+                 width="400" height="300"
                  alt="Question Image" />
 
         </div>
