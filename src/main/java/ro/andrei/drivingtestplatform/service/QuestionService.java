@@ -1,5 +1,6 @@
 package ro.andrei.drivingtestplatform.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.andrei.drivingtestplatform.dataimport.QuestionFileProcessor;
@@ -14,8 +15,8 @@ import ro.andrei.drivingtestplatform.response.QuestionResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,10 +40,11 @@ public class QuestionService {
         this.questionFileProcessor = questionFileProcessor;
     }
 
+    @Transactional
     public List<QuestionResponse> getQuestions() {
         return questionRepository.findAllByOrderByIdDesc()
                 .stream()
-                .map(q -> new QuestionResponse(q))
+                .map(QuestionResponse::new)
                 .collect(Collectors.toList());
     }
     public void saveQuestion(QuestionRequest questionRequest) {
@@ -69,7 +71,12 @@ public class QuestionService {
             question.setQuestionText(questionRequest.getText());
             question.setDrivingLicenseType(examConfiguration.getLicenseType());
         } else {
-            question = new Question(null, questionRequest.getText(), examConfiguration.getLicenseType(), new ArrayList<Answer>());
+            question = new Question(null, questionRequest.getText(), examConfiguration.getLicenseType(), new ArrayList<>());
+
+            if(questionRequest.getImageBase64() != null) {
+                byte[] imageBytes = Base64.getDecoder().decode(questionRequest.getImageBase64());
+                question.setImage(imageBytes);
+            }
         }
 
         for(int i = 0; i < questionRequest.getAnswers().size(); i++) {
@@ -102,15 +109,14 @@ public class QuestionService {
         }
     }
 
+    @Transactional
     public QuestionResponse getQuestion(Long id) {
         Question question = questionRepository.findById(id).orElseThrow(() -> new RuntimeException("Question not found"));
-        ExamConfiguration examConfiguration = examConfigurationRepository.findByLicenseType(question.getDrivingLicenseType());
-
-        return new QuestionResponse(question.getId(), question.getQuestionText(), question.getDrivingLicenseType().toString(),
-                examConfiguration.getId(),
-                question.getAnswers().stream().map(Answer::getAnswerText).collect(Collectors.toList()),
-                question.getAnswers().stream().map(Answer::isCorrect).collect(Collectors.toList())
-        );
+        ExamConfiguration examConfiguration =
+                examConfigurationRepository.findByLicenseType(question.getDrivingLicenseType());
+        var response = new QuestionResponse(question);
+        response.setExamConfigId(examConfiguration.getId());
+        return response;
     }
 
 }

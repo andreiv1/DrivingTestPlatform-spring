@@ -1,5 +1,6 @@
 package ro.andrei.drivingtestplatform.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.andrei.drivingtestplatform.exceptions.ExamAttemptNotFoundException;
@@ -45,7 +46,6 @@ public class ExamAttemptService {
     }
 
     public List<ExamAttemptListingRespose> getExamAttemptsByCandidateId(Long candidateId) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         return examAttemptRepository.findAllByCandidate_IdOrderByIdDesc(candidateId)
                 .stream()
                 .map(ExamAttemptListingRespose::new)
@@ -56,6 +56,7 @@ public class ExamAttemptService {
      * Generate an exam attempt for a candidate
      * @param candidateId the candidate id
      */
+    @Transactional
     public void generate(Long candidateId){
         Candidate candidate = candidateRepository.findById(candidateId)
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
@@ -99,6 +100,7 @@ public class ExamAttemptService {
      * Start an exam attempt for a candidate
      * @return the exam attempt response
      */
+    @Transactional
     public ExamAttemptResponse start(String candidateCnp) throws ExamAttemptNotFoundException {
         ExamAttempt examAttempt = examAttemptRepository.findLatestNotStartedAttempt(candidateCnp);
         if(examAttempt == null) {
@@ -137,6 +139,7 @@ public class ExamAttemptService {
      * @param selectedAnswersIds the selected answers ids
      * @return the next question
      */
+    @Transactional
     public ExamAttemptResponse continueExam(Long examAttemptId, Long questionId, List<Long> selectedAnswersIds) throws ExamAttemptNotFoundException {
         examAttemptAnswerService.saveAnswers(examAttemptId, questionId, selectedAnswersIds);
         return nextQuestion(examAttemptId);

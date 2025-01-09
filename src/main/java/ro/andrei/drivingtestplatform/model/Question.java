@@ -32,6 +32,14 @@ public class Question {
     private List<Answer> answers;
 
     @Lob
-    @Column(name = "imageBlob")
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "image_blob")
     private byte[] image;
+
+    public Question(Long id, String questionText, DrivingLicenseType drivingLicenseType, List<Answer> answers) {
+        this.id = id;
+        this.questionText = questionText;
+        this.drivingLicenseType = drivingLicenseType;
+        this.answers = answers;
+    }
 }

@@ -101,6 +101,11 @@
     <form action="#" th:action="@{/exam/submit}" method="post">
         <div class="question-text">
             <h3 th:text="${examAttempt.getCurrentQuestion().text}"></h3>
+            <img th:if="${examAttempt.getCurrentQuestion().base64Image != null and examAttempt.getCurrentQuestion().base64Image != ''}"
+                 th:src="'data:image/png;base64,' + ${examAttempt.getCurrentQuestion().base64Image}"
+                 width="400" height="200"
+                 alt="Question Image" />
+
         </div>
         <ul class="answers">
             <li th:each="answer : ${examAttempt.getCurrentQuestion().answers}">
@@ -108,7 +113,7 @@
                        th:id="'answer' + ${answer.getKey()}"
                        name="selectedAnswers"
                        th:value="${answer.getKey()}"
-                       class="answer-checkbox">
+                       class="answer-checkbox"></input>
                 <label th:for="'answer' + ${answer.getKey()}"
                        th:text="${answer.getValue()}"></label>
             </li>

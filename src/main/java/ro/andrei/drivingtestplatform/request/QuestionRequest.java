@@ -17,4 +17,6 @@ public class QuestionRequest {
     private Long examConfigId;
     private List<String> answers;
     private List<Boolean> correctAnswers;
+    private String imageBase64;
+
 }

@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 public class CsvQuestionFileProcessor implements QuestionFileProcessor {
-    private static final String HEADER = "question_title,answer1,isCorrect1,answer2,isCorrect2,answer3,isCorrect3";
+    private static final String HEADER = "question_title,answer1,isCorrect1,answer2,isCorrect2,answer3,isCorrect3,imageBase64";
 
     @Override
     public List<QuestionRequest> processFile(InputStream inputStream, Long examConfigId) throws IOException {
@@ -51,9 +51,11 @@ public class CsvQuestionFileProcessor implements QuestionFileProcessor {
     private QuestionRequest parseLine(String line, Long examConfigId) {
         String[] values = line.split(",");
 
-        // Validate line length
-        if (values.length != 7) {
-            throw new IllegalArgumentException("Expected 7 values, but got " + values.length);
+        // Line length can be 7 or 8
+        // if 8, it has image base64
+
+        if (values.length < 7 || values.length > 8) {
+            throw new IllegalArgumentException("Invalid line format. Expected 7 or 8 values, got " + values.length);
         }
 
         String questionTitle = values[0];
@@ -69,7 +71,12 @@ public class CsvQuestionFileProcessor implements QuestionFileProcessor {
         } catch (Exception e) {
             throw new IllegalArgumentException("Error parsing boolean values for correct answers.");
         }
-
-        return new QuestionRequest(null, questionTitle, examConfigId, answers, correctAnswers);
+        String imageBase64;
+        if (values.length == 8) {
+            imageBase64 = values[7];
+        } else {
+            imageBase64 = null;
+        }
+        return new QuestionRequest(null, questionTitle, examConfigId, answers, correctAnswers, imageBase64);
     }
 }

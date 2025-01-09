@@ -2,6 +2,7 @@ package ro.andrei.drivingtestplatform.response;
 
 import lombok.*;
 import ro.andrei.drivingtestplatform.model.ExamAttemptQuestion;
+import ro.andrei.drivingtestplatform.util.ByteArrayToBase64;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +21,7 @@ public class ExamAttemptResponse
         private Long questionId;
         private String text;
         private LinkedHashMap<Long, String> answers;
+        private String base64Image;
 
         public Question(ExamAttemptQuestion q){
             this.id = q.getId();
@@ -29,6 +31,10 @@ public class ExamAttemptResponse
             q.getQuestion().getAnswers().forEach(a -> {
                 this.answers.put(a.getId(), a.getAnswerText());
             });
+            var imageBytes = q.getQuestion().getImage();
+            if(imageBytes != null) {
+                this.base64Image = ByteArrayToBase64.convertByteArrayToBase64(imageBytes);
+            }
         }
 
     }
