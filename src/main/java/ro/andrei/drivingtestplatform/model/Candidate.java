@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "candidates")
@@ -24,7 +25,7 @@ public class Candidate {
     private String cnp;
 
     @Column(name="join_date", nullable = false)
-    private LocalDate joinDate;
+    private LocalDateTime joinDate;
 
     @ManyToOne
     @JoinColumn(name = "exam_configuration_id", nullable = false)

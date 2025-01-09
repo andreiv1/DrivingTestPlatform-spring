@@ -10,6 +10,7 @@ import ro.andrei.drivingtestplatform.request.CandidateRequest;
 import ro.andrei.drivingtestplatform.response.CandidateResponse;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,22 +31,23 @@ public class CandidateService {
                 .findById(candidateRequest.getExamConfigId())
                 .orElseThrow(() -> new RuntimeException("Exam configuration not found"));
 
+        Candidate candidate;
 
-        Candidate candidate = candidateRepository.findById(candidateRequest.getId())
-                .map(existingCandidate -> {
-                    existingCandidate.setExamConfiguration(examConfiguration);
-                    return existingCandidate;
-                })
-                .orElseGet(() -> {
-
-                    return Candidate.builder()
-                            .joinDate(LocalDate.now())
-                            .name(candidateRequest.getName())
-                            .cnp(candidateRequest.getCnp())
-                            .examConfiguration(examConfiguration)
-                            .build();
-                });
-
+        if(candidateRequest.getId() == null) {
+            candidate = Candidate.builder()
+                    .joinDate(LocalDateTime.now())
+                    .name(candidateRequest.getName())
+                    .cnp(candidateRequest.getCnp())
+                    .examConfiguration(examConfiguration)
+                    .build();
+        } else {
+            candidate = candidateRepository.findById(candidateRequest.getId())
+                    .map(existingCandidate -> {
+                        existingCandidate.setExamConfiguration(examConfiguration);
+                        return existingCandidate;
+                    })
+                    .orElseThrow(() -> new RuntimeException("Candidate not found"));
+        }
 
         candidateRepository.save(candidate);
     }

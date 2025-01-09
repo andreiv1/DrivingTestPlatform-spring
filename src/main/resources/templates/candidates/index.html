@@ -81,6 +81,7 @@
             <th>Nume</th>
             <th>CNP</th>
             <th>Data înscrierii</th>
+            <th>Categorie permis curentă</th>
             <th>Acțiuni</th>
         </tr>
         </thead>
@@ -89,6 +90,7 @@
             <td th:text="${candidate.name}"></td>
             <td th:text="${candidate.cnp}"></td>
             <td th:text="${candidate.joinDate}"></td>
+            <td th:text="${candidate.examConfigurationLicenseType}"></td>
             <td class="actions">
                 <button th:onclick="|window.location.href='/candidates/view/' + ${candidate.id}|">Detalii</button>
             </td>
