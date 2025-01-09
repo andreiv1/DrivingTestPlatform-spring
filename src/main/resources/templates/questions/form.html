@@ -2,9 +2,131 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adaugă întrebare</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+            margin: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        header .menu a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        .form-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        h1 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .answers-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .answer-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .answer-item input[type="text"] {
+            flex-grow: 1; /* Allow the text input to take up all available space */
+        }
+
+        .answer-item input[type="checkbox"] {
+            margin-left: 10px; /* Slight space between the text input and the checkbox */
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .cancel-button {
+            background-color: #ccc;
+        }
+
+        .cancel-button:hover {
+            background-color: #999;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-start;
+        }
+    </style>
 </head>
 <body>
+<header>
+    <h1>Gestionare Întrebare</h1>
+    <div class="menu">
+        <a href="/questions">Întrebări</a>
+        <a href="/candidates">Candidați</a>
+    </div>
+</header>
+
 <div class="form-container">
     <h1>Adaugă Întrebare</h1>
     <form th:action="@{/questions/add}" method="post">
@@ -17,8 +139,6 @@
             <label for="category">Configuratie examen</label>
             <select id="category" name="examConfigId" required>
                 <option value="">Categorie permis</option>
-                //show selected if examConfig.id equals examConfigId
-
                 <option th:each="examConfig : ${examConfigs}"
                         th:value="${examConfig.id}" th:text="${examConfig.drivingLicenseType}"
                         th:selected="${question.examConfigId == examConfig.id}"></option>
@@ -27,19 +147,20 @@
 
         <div class="form-group">
             <label>Răspunsuri posibile</label>
-            <div th:each="answer, iter : ${question.answers}">
-                <label>
+            <div class="answers-container">
+                <div class="answer-item" th:each="answer, iter : ${question.answers}">
                     <input type="text" th:value="${answer}"
                            th:field="*{question.answers[__${iter.index}__]}"/>
                     <input type="checkbox" th:checked="${question.correctAnswers[iter.index]}"
                            th:field="*{question.correctAnswers[__${iter.index}__]}"/>
-                </label>
+                </div>
             </div>
+        </div>
 
-            <div class="actions">
-                <button type="submit">Adaugă Întrebare</button>
-                <button type="button" class="cancel-button" onclick="window.location.href='/questions'">Anulează</button>
-            </div>
+        <div class="actions">
+            <button type="submit">Adaugă Întrebare</button>
+            <button type="button" class="cancel-button" onclick="window.location.href='/questions'">Anulează</button>
+        </div>
     </form>
 </div>
 </body>

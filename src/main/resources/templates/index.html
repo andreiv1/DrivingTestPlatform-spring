@@ -1,93 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Examen Auto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between; /* Aligns title and menu items */
+            align-items: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+        .menu {
+            display: flex;
+            gap: 20px; /* Spacing between menu items */
+        }
+        .menu a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 18px;
+            transition: color 0.3s;
+        }
+        .menu a:hover {
+            color: #0056b3;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 80%;
+            max-width: 400px;
+        }
+        .start-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .start-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f9;
-        color: #333;
-    }
-
-    header {
-        background-color: #0044cc;
-        color: white;
-        padding: 1rem 0;
-        text-align: center;
-    }
-
-    header h1 {
-        margin: 0;
-        font-size: 2rem;
-    }
-
-    .menu {
-        margin-top: 0.5rem;
-    }
-
-    .menu a {
-        color: white;
-        text-decoration: none;
-        margin: 0 1rem;
-        font-weight: bold;
-    }
-
-    .menu a:hover {
-        text-decoration: underline;
-    }
-
-    .container {
-        text-align: center;
-        margin: 2rem auto;
-        max-width: 600px;
-        padding: 1rem;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .container h2 {
-        margin-bottom: 1rem;
-    }
-
-    .form-group {
-        margin: 1rem 0;
-    }
-
-    input[type="text"] {
-        width: 100%;
-        padding: 0.5rem;
-        font-size: 1rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-
-    .start-button {
-        background-color: #0044cc;
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .start-button:hover {
-        background-color: #003399;
-    }
-
-    footer {
-        text-align: center;
-        padding: 1rem;
-        background-color: #f4f4f9;
-        color: #777;
-        margin-top: 2rem;
-    }
-</style>
+<body>
 <header>
     <h1>Examen Auto</h1>
     <div class="menu">
@@ -100,10 +80,11 @@
     <h2>Introduceti CNP-ul pentru a începe examenul:</h2>
     <form action="/exam/start" method="POST" id="examForm">
         <div class="form-group">
-            <input type="text" id="cnp" name="cnp" placeholder="Introduceti CNP-ul" maxlength="13" required/>
+            <input type="text" id="cnp" name="cnp" placeholder="CNP" maxlength="13" required/>
         </div>
         <button type="submit" class="start-button">START</button>
     </form>
 </div>
 
+</body>
 </html>

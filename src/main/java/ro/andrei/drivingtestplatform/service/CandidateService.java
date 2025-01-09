@@ -10,7 +10,6 @@ import ro.andrei.drivingtestplatform.request.CandidateRequest;
 import ro.andrei.drivingtestplatform.response.CandidateResponse;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,24 +25,31 @@ public class CandidateService {
         this.examConfigurationRepository = examConfigurationRepository;
     }
 
-    public void addCandidate(CandidateRequest candidateRequest) {
-
+    public void saveCandidate(CandidateRequest candidateRequest) {
         ExamConfiguration examConfiguration = examConfigurationRepository
                 .findById(candidateRequest.getExamConfigId())
                 .orElseThrow(() -> new RuntimeException("Exam configuration not found"));
+        Candidate candidate;
 
-        Candidate candidate = Candidate.builder()
-                .joinDate(LocalDate.now())
-                .name(candidateRequest.getName())
-                .cnp(candidateRequest.getCnp())
-                .examConfiguration(examConfiguration)
-                .build();
+        //If candidate exists, update
+        if(candidateRepository.existsByCnp(candidateRequest.getCnp())) {
+            candidate = candidateRepository.findByCnp(candidateRequest.getCnp());
+            candidate.setName(candidateRequest.getName());
+            candidate.setExamConfiguration(examConfiguration);
+        } else {
+            candidate = Candidate.builder()
+                    .joinDate(LocalDate.now())
+                    .name(candidateRequest.getName())
+                    .cnp(candidateRequest.getCnp())
+                    .examConfiguration(examConfiguration)
+                    .build();
 
+        }
         candidateRepository.save(candidate);
     }
 
     public List<CandidateResponse> getAllCandidates() {
-        List<Candidate> candidates = candidateRepository.findAll();
+        List<Candidate> candidates = candidateRepository.findAllByOrderByJoinDateDesc();
         return candidates.stream()
                 .map(c -> new CandidateResponse(c))
                 .collect(Collectors.toList());

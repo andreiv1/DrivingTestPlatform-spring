@@ -38,9 +38,9 @@ public class CandidateController {
         return "candidates/form";
     }
 
-    @PostMapping("/candidates/add")
-    public String addCandidatePost(CandidateRequest candidateRequest){
-        candidateService.addCandidate(candidateRequest);
+    @PostMapping("/candidates")
+    public String saveCandidate(CandidateRequest candidateRequest){
+        candidateService.saveCandidate(candidateRequest);
         return "redirect:/candidates";
     }
 
