@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adaugă întrebare</title>
+    <title>întrebare</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             color: #333;
-            padding: 20px;
             margin: 0;
         }
 
@@ -128,7 +127,6 @@
 </header>
 
 <div class="form-container">
-    <h1>Adaugă Întrebare</h1>
     <form th:action="@{/questions}" method="post">
         <input type="hidden" name="id" th:value="${question.id}"/>
         <div class="form-group">
