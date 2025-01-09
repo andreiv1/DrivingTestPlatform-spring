@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuestionRequest {
+    private Long id;
     private String text;
     private Long examConfigId;
     private List<String> answers;

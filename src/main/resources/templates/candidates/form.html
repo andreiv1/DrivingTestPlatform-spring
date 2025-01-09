@@ -108,11 +108,11 @@
     <form action="/candidates" method="post">
         <input type="hidden" name="id" th:value="${candidate != null ? candidate.id : ''}">
         <label for="name">Nume</label>
-        <input type="text" id="name" name="name"
+        <input type="text" id="name" name="name" th:disabled="${mode == 'view'}"
                th:value="${candidate != null ? candidate.name : ''}" required>
 
         <label for="cnp">CNP:</label>
-        <input type="text" id="cnp" name="cnp"
+        <input type="text" id="cnp" name="cnp" th:disabled="${mode == 'view'}"
                th:value="${candidate != null ? candidate.cnp : ''}" required>
 
         <label for="examConfig">Configurație examen curenta:</label>

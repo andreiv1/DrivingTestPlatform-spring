@@ -70,6 +70,6 @@ public class CsvQuestionFileProcessor implements QuestionFileProcessor {
             throw new IllegalArgumentException("Error parsing boolean values for correct answers.");
         }
 
-        return new QuestionRequest(questionTitle, examConfigId, answers, correctAnswers);
+        return new QuestionRequest(null, questionTitle, examConfigId, answers, correctAnswers);
     }
 }

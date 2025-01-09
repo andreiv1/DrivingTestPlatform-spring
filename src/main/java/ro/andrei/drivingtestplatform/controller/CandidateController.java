@@ -41,6 +41,9 @@ public class CandidateController {
     @PostMapping("/candidates")
     public String saveCandidate(CandidateRequest candidateRequest){
         candidateService.saveCandidate(candidateRequest);
+        if(candidateRequest.getId() != null){
+            return "redirect:/candidates/view/" + candidateRequest.getId();
+        }
         return "redirect:/candidates";
     }
 

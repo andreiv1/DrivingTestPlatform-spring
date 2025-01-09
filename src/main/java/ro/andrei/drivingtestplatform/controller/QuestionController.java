@@ -43,10 +43,10 @@ public class QuestionController {
         return "questions/form";
     }
 
-    @PostMapping("/questions/add")
-    public String addQuestionPost(@ModelAttribute QuestionRequest questionRequest){
-        questionService.addQuestion(questionRequest);
-        return "redirect:/questions";
+    @PostMapping("/questions")
+    public String saveQuestion(@ModelAttribute QuestionRequest questionRequest){
+        questionService.saveQuestion(questionRequest);
+        return "redirect:/questions/view/"+questionRequest.getId();
     }
     @GetMapping("/questions/import")
     public String importQuestions(Model model){

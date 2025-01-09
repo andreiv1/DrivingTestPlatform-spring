@@ -129,7 +129,8 @@
 
 <div class="form-container">
     <h1>Adaugă Întrebare</h1>
-    <form th:action="@{/questions/add}" method="post">
+    <form th:action="@{/questions}" method="post">
+        <input type="hidden" name="id" th:value="${question.id}"/>
         <div class="form-group">
             <label for="text">Întrebare</label>
             <textarea id="text" name="text" th:text="${question.text}" rows="4" placeholder="Introduceți întrebare" required></textarea>
@@ -149,16 +150,19 @@
             <label>Răspunsuri posibile</label>
             <div class="answers-container">
                 <div class="answer-item" th:each="answer, iter : ${question.answers}">
-                    <input type="text" th:value="${answer}"
-                           th:field="*{question.answers[__${iter.index}__]}"/>
-                    <input type="checkbox" th:checked="${question.correctAnswers[iter.index]}"
+                    <input type="text" th:value="${answer}" th:field="*{question.answers[__${iter.index}__]}"/>
+
+                    <!-- Ensure the checkbox is correctly bound to correctAnswers -->
+                    <input type="checkbox"
+                           th:checked="${question.correctAnswers[iter.index]}"
                            th:field="*{question.correctAnswers[__${iter.index}__]}"/>
                 </div>
             </div>
         </div>
 
         <div class="actions">
-            <button type="submit">Adaugă Întrebare</button>
+            <button type="submit"><span th:if="${mode == 'view'}">Actualizează Întrebare</span>
+                <span th:if="${mode == 'add'}">Adaugă Întrebare</span></button>
             <button type="button" class="cancel-button" onclick="window.location.href='/questions'">Anulează</button>
         </div>
     </form>

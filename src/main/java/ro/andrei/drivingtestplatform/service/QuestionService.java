@@ -39,12 +39,22 @@ public class QuestionService {
     }
 
     public List<QuestionResponse> getQuestions() {
-        return questionRepository.findAll()
+        return questionRepository.findAllByOrderByIdDesc()
                 .stream()
                 .map(q -> new QuestionResponse(q))
                 .collect(Collectors.toList());
     }
-    public void addQuestion(QuestionRequest questionRequest) {
+    public void saveQuestion(QuestionRequest questionRequest) {
+        if(questionRequest.getCorrectAnswers().size() == 0) {
+            throw new RuntimeException("At least one correct answer must be provided");
+        }
+        if(questionRequest.getAnswers().size() != questionRequest.getCorrectAnswers().size())
+        {
+            throw new RuntimeException("Number of answers and correct answers must be the same");
+        }
+
+        //TODO save logic doesnot work
+
         ExamConfiguration examConfiguration = examConfigurationRepository
                 .findById(questionRequest.getExamConfigId())
                 .orElseThrow(() -> new RuntimeException("Exam configuration not found"));
@@ -68,7 +78,7 @@ public class QuestionService {
         try {
             List<QuestionRequest> questions = questionFileProcessor.processFile(inputStream, examConfigId);
             for(QuestionRequest questionRequest : questions){
-                addQuestion(questionRequest);
+                saveQuestion(questionRequest);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

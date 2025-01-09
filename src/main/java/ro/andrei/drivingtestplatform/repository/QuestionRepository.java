@@ -16,4 +16,5 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     int countByDrivingLicenseType(@Param("license_type") DrivingLicenseType licenseType);
 
+    List<Question> findAllByOrderByIdDesc();
 }

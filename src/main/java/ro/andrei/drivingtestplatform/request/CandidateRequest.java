@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CandidateRequest {
+    private Long id;
     private String name;
     private String cnp;
     private Long examConfigId;

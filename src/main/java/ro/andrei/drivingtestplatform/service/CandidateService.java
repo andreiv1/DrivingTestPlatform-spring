@@ -29,22 +29,24 @@ public class CandidateService {
         ExamConfiguration examConfiguration = examConfigurationRepository
                 .findById(candidateRequest.getExamConfigId())
                 .orElseThrow(() -> new RuntimeException("Exam configuration not found"));
-        Candidate candidate;
 
-        //If candidate exists, update
-        if(candidateRepository.existsByCnp(candidateRequest.getCnp())) {
-            candidate = candidateRepository.findByCnp(candidateRequest.getCnp());
-            candidate.setName(candidateRequest.getName());
-            candidate.setExamConfiguration(examConfiguration);
-        } else {
-            candidate = Candidate.builder()
-                    .joinDate(LocalDate.now())
-                    .name(candidateRequest.getName())
-                    .cnp(candidateRequest.getCnp())
-                    .examConfiguration(examConfiguration)
-                    .build();
 
-        }
+        Candidate candidate = candidateRepository.findById(candidateRequest.getId())
+                .map(existingCandidate -> {
+                    existingCandidate.setExamConfiguration(examConfiguration);
+                    return existingCandidate;
+                })
+                .orElseGet(() -> {
+
+                    return Candidate.builder()
+                            .joinDate(LocalDate.now())
+                            .name(candidateRequest.getName())
+                            .cnp(candidateRequest.getCnp())
+                            .examConfiguration(examConfiguration)
+                            .build();
+                });
+
+
         candidateRepository.save(candidate);
     }
 

@@ -4,11 +4,77 @@
     <meta charset="UTF-8">
     <title>Lista întrebărilor</title>
 </head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+    }
+    .table-container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    .add-button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin: 10px 0;
+        cursor: pointer;
+        border-radius: 5px;
+        display: block;
+        width: 200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .add-button:hover {
+        background-color: #45a049;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    table th, table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    table th {
+        background-color: #4CAF50;
+        color: white;
+    }
+    table td {
+        background-color: #f9f9f9;
+    }
+    .actions button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .actions button:hover {
+        background-color: #0056b3;
+    }
+</style>
 <body>
 <div class="table-container">
     <h1>Lista întrebărilor</h1>
-    <button th:onclick="|window.location.href='/questions/add'|">Adaugă Întrebare</button>
-    <button th:onclick="|window.location.href='/questions/import'|">Importa CSV</button>
+    <button class="actions" th:onclick="|window.location.href='/questions/add'|">Adaugă Întrebare</button>
+    <button class="actions" th:onclick="|window.location.href='/questions/import'|">Importa CSV</button>
     <table>
         <thead>
         <tr>
@@ -26,27 +92,6 @@
             </td>
         </tr>
         </tbody>
-<!--    <button class="add-button" th:onclick="|window.location.href='/candidates/add'|">Adaugă Candidat</button>-->
-<!--    <table>-->
-<!--        <thead>-->
-<!--        <tr>-->
-<!--            <th>Nume</th>-->
-<!--            <th>CNP</th>-->
-<!--            <th>Data înscrierii</th>-->
-<!--            <th>Acțiuni</th>-->
-<!--        </tr>-->
-<!--        </thead>-->
-<!--        <tbody>-->
-<!--        <tr th:each="candidate : ${candidates}">-->
-<!--            <td th:text="${candidate.name}"></td>-->
-<!--            <td th:text="${candidate.cnp}"></td>-->
-<!--            <td th:text="${candidate.joinDate}"></td>-->
-<!--            <td class="actions">-->
-<!--                <button th:onclick="|window.location.href='/candidates/view/' + ${candidate.id}|">Detalii</button>-->
-<!--            </td>-->
-<!--        </tr>-->
-<!--        </tbody>-->
-<!--    </table>-->
 </div>
 </body>
 </html>
