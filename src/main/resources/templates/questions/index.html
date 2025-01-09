@@ -69,12 +69,19 @@
     .actions button:hover {
         background-color: #0056b3;
     }
+    .buttons{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
 <body>
 <div class="table-container">
     <h1>Lista întrebărilor</h1>
-    <button class="actions" th:onclick="|window.location.href='/questions/add'|">Adaugă Întrebare</button>
-    <button class="actions" th:onclick="|window.location.href='/questions/import'|">Importa CSV</button>
+   <div class="buttons">
+       <button class="add-button" th:onclick="|window.location.href='/questions/add'|">Adaugă Întrebare</button>
+       <button class="add-button" th:onclick="|window.location.href='/questions/import'|">Importa CSV</button>
+   </div>
     <table>
         <thead>
         <tr>

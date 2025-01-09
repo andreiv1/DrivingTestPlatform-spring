@@ -12,6 +12,7 @@ import ro.andrei.drivingtestplatform.service.QuestionService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class QuestionController {
@@ -45,7 +46,14 @@ public class QuestionController {
 
     @PostMapping("/questions")
     public String saveQuestion(@ModelAttribute QuestionRequest questionRequest){
+        List<Boolean> sanitizedCorrectAnswers = questionRequest.getCorrectAnswers().stream()
+                .map(correct -> correct != null && correct)
+                .collect(Collectors.toList());
+        questionRequest.setCorrectAnswers(sanitizedCorrectAnswers);
         questionService.saveQuestion(questionRequest);
+        if(questionRequest.getId() == null){
+            return "redirect:/questions";
+        }
         return "redirect:/questions/view/"+questionRequest.getId();
     }
     @GetMapping("/questions/import")

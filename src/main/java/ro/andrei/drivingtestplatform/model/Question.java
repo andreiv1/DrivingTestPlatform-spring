@@ -28,5 +28,6 @@ public class Question {
     private DrivingLicenseType drivingLicenseType;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    @OrderBy("id ASC")
     private List<Answer> answers;
 }

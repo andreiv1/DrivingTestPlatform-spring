@@ -14,6 +14,7 @@ import ro.andrei.drivingtestplatform.response.QuestionResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,30 +46,46 @@ public class QuestionService {
                 .collect(Collectors.toList());
     }
     public void saveQuestion(QuestionRequest questionRequest) {
-        if(questionRequest.getCorrectAnswers().size() == 0) {
+        boolean isAnswerArraysEqual = questionRequest.getCorrectAnswers().size() == questionRequest.getAnswers().size();
+        boolean isCorrectAnswersArrayEmpty = questionRequest.getCorrectAnswers().size() == 0;
+        boolean isUpdate = questionRequest.getId() != null;
+
+        if(isCorrectAnswersArrayEmpty) {
             throw new RuntimeException("At least one correct answer must be provided");
         }
-        if(questionRequest.getAnswers().size() != questionRequest.getCorrectAnswers().size())
-        {
-            throw new RuntimeException("Number of answers and correct answers must be the same");
-        }
+        if(!isAnswerArraysEqual) {
+            throw new RuntimeException("Answers and correct answers arrays must have the same size");
 
-        //TODO save logic doesnot work
+        }
 
         ExamConfiguration examConfiguration = examConfigurationRepository
                 .findById(questionRequest.getExamConfigId())
                 .orElseThrow(() -> new RuntimeException("Exam configuration not found"));
 
-        var answers = new ArrayList<Answer>();
-        Question question = new Question(null, questionRequest.getText(), examConfiguration.getLicenseType(), answers);
+
+        Question question;
+        if(isUpdate) {
+            question = questionRepository.findById(questionRequest.getId()).get();
+            question.setQuestionText(questionRequest.getText());
+            question.setDrivingLicenseType(examConfiguration.getLicenseType());
+        } else {
+            question = new Question(null, questionRequest.getText(), examConfiguration.getLicenseType(), new ArrayList<Answer>());
+        }
 
         for(int i = 0; i < questionRequest.getAnswers().size(); i++) {
-            Answer a = new Answer(null, questionRequest.getAnswers().get(i), false, question);
-
-            if(questionRequest.getCorrectAnswers().get(i) != null){
-                a.setCorrect(questionRequest.getCorrectAnswers().get(i));
+            Answer answer;
+            if (isUpdate) {
+                answer = question.getAnswers().get(i);
+                answer.setAnswerText(questionRequest.getAnswers().get(i));
+            } else {
+                answer = new Answer(null, questionRequest.getAnswers().get(i), false, question);
+                question.getAnswers().add(answer);
             }
-            answers.add(a);
+
+            if (questionRequest.getCorrectAnswers().get(i) != null) {
+                answer.setCorrect(questionRequest.getCorrectAnswers().get(i));
+            }
+            answerRepository.save(answer);
         }
 
         questionRepository.save(question);

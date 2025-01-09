@@ -65,7 +65,6 @@ public class ExamAttemptService {
 
         ExamConfiguration examConfiguration = candidate.getExamConfiguration();
 
-        //Can't generate an exam attempt if one is already in progress or not started
         if(examAttemptRepository.existsByCandidateAndStatus(candidate, ExamStatus.IN_PROGRESS)) {
             throw new RuntimeException("An exam attempt is already in progress");
         }

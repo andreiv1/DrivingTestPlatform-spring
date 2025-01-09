@@ -34,15 +34,9 @@ public class ExamController {
     @PostMapping("/exam/start")
     public String startExam(@RequestParam("cnp") String cnp,
                             Model model) {
-        try{
-            var response = examService.start(cnp);
-            model.addAttribute("examAttempt", response);
-            return "exam/index";
-        }
-        catch (Exception e){
-            model.addAttribute("error", e.getMessage());
-            return "exam/start";
-        }
+        var response = examService.start(cnp);
+        model.addAttribute("examAttempt", response);
+        return "exam/index";
 
     }
 
