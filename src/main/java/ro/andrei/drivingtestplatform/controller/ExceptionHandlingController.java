@@ -18,7 +18,7 @@ public class ExceptionHandlingController {
     @ExceptionHandler(ExamAttemptNotFoundException.class)
     public String handleExamAttemptNotFoundException(ExamAttemptNotFoundException ex, Model model) {
         Logger.getInstance().error(ex.getMessage());
-        model.addAttribute("errorMessage", "Examenul nu a fost generat.");
+        model.addAttribute("errorMessage", "Examinarea nu este posibila.");
         return "error/index";
     }
     @ExceptionHandler(Exception.class)
