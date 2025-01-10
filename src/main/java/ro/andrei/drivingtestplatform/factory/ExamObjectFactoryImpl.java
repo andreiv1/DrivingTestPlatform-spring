@@ -4,8 +4,10 @@ import org.springframework.stereotype.Component;
 import ro.andrei.drivingtestplatform.model.*;
 import ro.andrei.drivingtestplatform.model.ExamAttempt;
 import ro.andrei.drivingtestplatform.model.enums.ExamStatus;
+import ro.andrei.drivingtestplatform.util.ExamAttemptQuestionIterator;
 
 import java.time.LocalDateTime;
+import java.util.Iterator;
 
 @Component
 public class ExamObjectFactoryImpl implements ExamObjectFactory {
@@ -41,5 +43,10 @@ public class ExamObjectFactoryImpl implements ExamObjectFactory {
         examAttemptAnswer.setAnswer(answer);
 
         return examAttemptAnswer;
+    }
+
+    @Override
+    public Iterator<ExamAttemptQuestion> createExamAttemptQuestionIterator(ExamAttempt examAttempt) {
+        return new ExamAttemptQuestionIterator(examAttempt);
     }
 }

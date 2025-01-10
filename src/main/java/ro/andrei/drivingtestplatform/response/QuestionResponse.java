@@ -31,6 +31,4 @@ public class QuestionResponse {
          this.correctAnswers = q.getAnswers().stream().map(Answer::isCorrect).toList();
          this.imageBase64 = ByteArrayToBase64.convertByteArrayToBase64(q.getImage());
     }
-
-
 }

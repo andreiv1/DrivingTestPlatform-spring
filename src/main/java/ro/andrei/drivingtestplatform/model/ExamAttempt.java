@@ -37,16 +37,8 @@ public class ExamAttempt {
     @Column(name = "license_type", nullable = false)
     private DrivingLicenseType licenseType;
 
-    //Intrebarile generate pentru test
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(
-//            name = "exam_attempt_questions",
-//            joinColumns = @JoinColumn(name = "exam_attempt_id"),
-//            inverseJoinColumns = @JoinColumn(name = "question_id")
-//    )
-//    private List<Question> questions;
     @OneToMany(mappedBy = "examAttempt", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<ExamAttemptQuestion> examAttemptQuestions;
+    private List<ExamAttemptQuestion> examAttemptQuestions;
 
     //Raspunsurile la intrebarile generate pentru test date de utilizator
     @OneToMany(mappedBy = "examAttempt", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -13,10 +13,7 @@ import ro.andrei.drivingtestplatform.response.ExamAttemptListingRespose;
 import ro.andrei.drivingtestplatform.response.ExamAttemptResponse;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,7 +82,7 @@ public class ExamAttemptService {
                 examConfiguration.getNumberOfQuestions()
         );
 
-        Set<ExamAttemptQuestion> examAttemptQuestions = new HashSet<>();
+        List<ExamAttemptQuestion> examAttemptQuestions = new ArrayList<>();
         int index = 0;
         for(var question : questions){
             ExamAttemptQuestion examAttemptQuestion = examObjectFactory
@@ -144,6 +141,7 @@ public class ExamAttemptService {
         examAttemptAnswerService.saveAnswers(examAttemptId, questionId, selectedAnswersIds);
         return nextQuestion(examAttemptId);
     }
+
     private ExamAttemptResponse nextQuestion(Long examAttemptId) throws ExamAttemptNotFoundException {
         ExamAttempt examAttempt = examAttemptRepository.findById(examAttemptId).orElse(null);
 
@@ -165,19 +163,16 @@ public class ExamAttemptService {
             return null;
         }
 
+        Iterator<ExamAttemptQuestion> questionIterator = examObjectFactory.createExamAttemptQuestionIterator(examAttempt);
         //Check if there are any questions left
-        if(examAttempt.getCurrentQuestionIndex() >= examConfiguration.getNumberOfQuestions()) {
-            //TODO exam ended - handle failed, when it suddenly ends because of the time and because of the score limit not being reached
+        if(!questionIterator.hasNext()) {
             examAttempt.setStatus(ExamStatus.PASSED);
             examAttempt.setEndTime(LocalDateTime.now());
             examAttemptRepository.save(examAttempt);
             return null;
         }
 
-        var currentQuestion = examAttemptQuestionsRepository.findByExamAttempt_IdAndOrderIndex(
-                examAttempt.getId(),
-                examAttempt.getCurrentQuestionIndex()
-        );
+        ExamAttemptQuestion currentQuestion = questionIterator.next();
 
         int correctAnswers = examAttempt.getCurrentQuestionIndex() - examAttempt.getWrongAnswersCounter();
 
